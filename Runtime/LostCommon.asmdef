@@ -1,0 +1,25 @@
+{
+    "name": "LostCommon",
+    "rootNamespace": "",
+    "references": [],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "Unity",
+            "expression": "0.0.0",
+            "define": "UNITY"
+        },
+        {
+            "name": "com.unity.nuget.newtonsoft-json",
+            "expression": "0.0.0",
+            "define": "USING_NEWTONSOFT"
+        }
+    ],
+    "noEngineReferences": false
+}

@@ -1,0 +1,16 @@
+{
+  "name": "com.lostsignal.lostcommon",
+  "displayName": "Lost Common",
+  "version": "0.1.0",
+  "unity": "2021.1",
+  "description": "Lost Common",
+  "keywords": [
+    "Lost Common"
+  ],
+  "category": "",
+  "dependencies": {
+    "com.unity.test-framework": "1.1.30",
+    "com.unity.coding": "0.1.0-preview.20"
+  },
+  "type": "library"
+}
