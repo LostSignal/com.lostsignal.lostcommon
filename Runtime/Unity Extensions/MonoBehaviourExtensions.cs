@@ -42,7 +42,7 @@ namespace Lost
             where T : Component
         {
 #if UNITY_EDITOR
-            if (monoBehaviour.gameObject.scene.IsValid() == false || UnityEditor.Experimental.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage() != null)
+            if (monoBehaviour.gameObject.scene.IsValid() == false || UnityEditor.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage() != null)
             {
                 return;
             }
@@ -73,7 +73,7 @@ namespace Lost
             where T : Component
         {
 #if UNITY_EDITOR
-            if (monoBehaviour.gameObject.scene.IsValid() == false || UnityEditor.Experimental.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage() != null)
+            if (monoBehaviour.gameObject.scene.IsValid() == false || UnityEditor.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage() != null)
             {
                 return;
             }
