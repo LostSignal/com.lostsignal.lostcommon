@@ -8,6 +8,7 @@
 
 namespace Lost
 {
+    using System.Diagnostics;
     using UnityEngine;
 
     public static class EditorUtil
@@ -17,7 +18,7 @@ namespace Lost
         {
             if (Application.isEditor == false)
             {
-                Debug.LogError("Trying to call EditorUtil.GetAssetByGuid from a build!");
+                UnityEngine.Debug.LogError("Trying to call EditorUtil.GetAssetByGuid from a build!");
             }
             else
             {
@@ -39,6 +40,14 @@ namespace Lost
             }
 
             return null;
+        }
+
+        [Conditional("UNITY_EDITOR")]
+        public static void SetDirty(UnityEngine.Object target)
+        {
+            #if UNITY_EDITOR
+            UnityEditor.EditorUtility.SetDirty(target);
+            #endif
         }
     }
 }
