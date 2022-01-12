@@ -4,6 +4,10 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
+////
+//// NOTE [bgish]: Code taken from https://github.com/jawa-the-hutt/lz-string-csharp
+////
+
 namespace Lost
 {
     using System;
