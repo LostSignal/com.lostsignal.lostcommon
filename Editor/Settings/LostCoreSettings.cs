@@ -16,9 +16,9 @@ namespace Lost
 
     public class LostCoreSettings : ScriptableObject
     {
-        public const string InstanceName = "Lost Core Settings";
-        public const string SettingsWindowPath = "Project/Lost Core";
-        public const string SettingsFilePath = "ProjectSettings/LostCoreSettings.asset";
+        public const string InstanceName = "Lost Signal Settings";
+        public const string SettingsWindowPath = "Project/Lost Signal";
+        public const string SettingsFilePath = "ProjectSettings/LostSignalSettings.asset";
 
         private static LostCoreSettings instance;
 
