@@ -14,7 +14,7 @@ namespace Lost
 
     public static class MenuItemTools
     {
-        [MenuItem("Tools/Lost/Remove Empty Directories (Selected Directory)", priority = 30)]
+        [MenuItem("Tools/Lost/Remove Empty Directories (Selected Directory)", priority = 40)]
         public static void RemoveEmptyDirectoriesFromSelectedDirectory()
         {
             if (Selection.objects?.Length != 1)
@@ -36,13 +36,13 @@ namespace Lost
             EditorApplication.delayCall += AssetDatabase.Refresh;
         }
 
-        [MenuItem("Tools/Lost/Cleanup C# Files (Selected Directory)", priority = 31)]
+        [MenuItem("Tools/Lost/Cleanup C# Files (Selected Directory)", priority = 41)]
         public static void ConvertAllCSharpFiles()
         {
             ConvertAllCSharpFiles(false);
         }
 
-        [MenuItem("Tools/Lost/Disable Warnings In C# Files (Selected Directory)", priority = 32)]
+        [MenuItem("Tools/Lost/Disable Warnings In C# Files (Selected Directory)", priority = 42)]
         public static void DisableWarnings()
         {
             ConvertAllCSharpFiles(true);

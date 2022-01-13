@@ -19,7 +19,7 @@ namespace Lost
 
     public static class ExportNavMeshToObj
     {
-        [MenuItem("Tools/Lost/Export Scene NavMesh", priority = 51)]
+        [MenuItem("Tools/Lost/Export Scene NavMesh", priority = 61)]
         public static void ExportNavMeshForCurrentScene()
         {
             var sceneNavMesh = UnityEngine.AI.NavMesh.CalculateTriangulation();

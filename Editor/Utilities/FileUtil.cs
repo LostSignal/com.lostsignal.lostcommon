@@ -14,19 +14,7 @@ namespace Lost
 
     public static class FileUtil
     {
-        public static void CreateOrUpdateFile(string contents, string path, bool useSourceControl, LineEndingsMode lineEndings)
-        {
-            if (File.Exists(path))
-            {
-                UpdateFile(contents, path, useSourceControl, lineEndings);
-            }
-            else
-            {
-                CreateFile(contents, path, useSourceControl, lineEndings);
-            }
-        }
-
-        public static void CreateOrUpdateFile(string contents, string path, bool useSourceControl)
+        public static void CreateOrUpdateFile(string contents, string path, bool useSourceControl = true)
         {
             CreateOrUpdateFile(contents, path, useSourceControl, EditorSettings.lineEndingsForNewScripts);
         }
@@ -51,14 +39,14 @@ namespace Lost
             CreateFile(contents, destinationFile, sourceControlAdd, EditorSettings.lineEndingsForNewScripts);
         }
 
-        public static void UpdateFile(string contents, string path, bool useSourceControl, LineEndingsMode lineEndings)
+        public static bool UpdateFile(string contents, string path, bool useSourceControl, LineEndingsMode lineEndings)
         {
             string fileContents = ConvertLineEndings(contents, lineEndings);
 
             // Early out if nothing has changed
             if (File.ReadAllText(path) == fileContents)
             {
-                return;
+                return false;
             }
 
             // Checking out the file
@@ -68,6 +56,7 @@ namespace Lost
             }
 
             File.WriteAllText(path, fileContents);
+            return true;
         }
 
         public static void UpdateFile(string contents, string path, bool useSourceControl)
@@ -212,6 +201,29 @@ namespace Lost
                     Directory.Delete(directory);
                 }
             }
+        }
+
+        private static bool CreateOrUpdateFile(string contents, string path, bool useSourceControl, LineEndingsMode lineEndings)
+        {
+            bool updated;
+
+            if (File.Exists(path))
+            {
+                updated = UpdateFile(contents, path, useSourceControl, lineEndings);
+            }
+            else
+            {
+                CreateFile(contents, path, useSourceControl, lineEndings);
+                updated = true;
+            }
+
+            if (updated)
+            {
+                AssetDatabase.ImportAsset(path);
+                AssetDatabase.Refresh();
+            }
+
+            return updated;
         }
 
         private static void EnsureNotReadOnly(string filePath)
