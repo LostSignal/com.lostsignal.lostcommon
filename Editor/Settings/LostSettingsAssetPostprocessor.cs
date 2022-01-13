@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------
-// <copyright file="LostCoreSettingsAssetPostprocessor.cs" company="Lost Signal LLC">
+// <copyright file="LostSettingsAssetPostprocessor.cs" company="Lost Signal LLC">
 //     Copyright (c) Lost Signal LLC. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -8,11 +8,11 @@ namespace Lost
 {
     using UnityEditor;
 
-    public class LostCoreSettingsAssetPostprocessor : AssetPostprocessor
+    public class LostSettingsAssetPostprocessor : AssetPostprocessor
     {
         private static void OnGeneratedCSProjectFiles()
         {
-            LostCoreSettings.Instance.AddEditorConfigToSolution();
+            LostSettings.Instance.AddEditorConfigToSolution();
 
             AnalyzerUtil.AddAnalyzersToCSProjects();
         }

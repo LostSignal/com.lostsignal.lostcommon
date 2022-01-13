@@ -54,6 +54,7 @@ buildconfig.json
 buildconfig.json.meta
 release.json
 release.json.meta
+.packagemappings
 
 # Other
 .gradle

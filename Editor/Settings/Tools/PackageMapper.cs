@@ -6,26 +6,26 @@
 
 namespace Lost
 {
-    using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Text;
     using UnityEditor;
-    using UnityEngine;
 
     public static class PackageMapper
     {
         private const string MapToLocalSource = "Assets/Lost/Package Mapper/Map Package(s) To Local Source";
         private const string MapToGithubSource = "Assets/Lost/Package Mapper/Map Package(s) To Latest GitHub";
 
+        private const string PackageMappingsPath = ".packagemappings";
         private const string ManifestPath = "./Packages/manifest.json";
         private const string PackagesPath = "Packages/";
 
         public enum Mode
         {
             None,
-            GitHub,
-            LocalFolder,
+            Git,
+            Folder,
         }
 
         [MenuItem(MapToLocalSource, false, priority = -100)]
@@ -33,14 +33,14 @@ namespace Lost
         {
             foreach (var selectedObject in Selection.objects)
             {
-                SwitchRepositoryTo(selectedObject, Mode.LocalFolder);
+                SwitchRepositoryTo(selectedObject, Mode.Folder);
             }
         }
 
         [MenuItem(MapToLocalSource, true, priority = -100)]
         public static bool UpdateToLocalSourceValidate()
         {
-            return IsSelectionAllPackages();
+            return IsSelectionAllValidPackages();
         }
 
         [MenuItem(MapToGithubSource, false, priority = -100)]
@@ -48,42 +48,35 @@ namespace Lost
         {
             foreach (var selectedObject in Selection.objects)
             {
-                SwitchRepositoryTo(selectedObject, Mode.GitHub);
+                SwitchRepositoryTo(selectedObject, Mode.Git);
             }
         }
 
         [MenuItem(MapToGithubSource, true, priority = -100)]
         public static bool UpdateToLatestGitHubValidate()
         {
-            return IsSelectionAllPackages();
+            return IsSelectionAllValidPackages();
         }
 
-        public static string GetPackageLocalPath(string packageName, List<string> packagesDirectories)
-        {
-            // Going through each one and moving the files if found
-            foreach (var packagesDirectory in packagesDirectories)
-            {
-                if (Directory.Exists(packagesDirectory))
-                {
-                    return packagesDirectory.Replace("\\", "/");
-                }
-            }
-
-            return null;
-        }
-
-        private static bool IsSelectionAllPackages()
+        private static bool IsSelectionAllValidPackages()
         {
             if (Selection.objects == null || Selection.objects.Length == 0)
             {
                 return false;
             }
 
+            var mappings = GetMappings();
+            var manifest = GetManifest();
+
             foreach (var selectedObject in Selection.objects)
             {
-                GetRepository(selectedObject, out PackageMapperRepository repository, out string _, out Mode _);
+                var packageName = GetPackageName(selectedObject);
 
-                if (repository == null)
+                bool isPackage = string.IsNullOrWhiteSpace(packageName) == false;
+                bool hasMapping = mappings.Any(x => x.PackageIdentifier == packageName);
+                bool isGit = GetPackageMode(manifest, packageName) == Mode.Git;
+
+                if (isPackage == false || (hasMapping == false && isGit == false))
                 {
                     return false;
                 }
@@ -92,65 +85,93 @@ namespace Lost
             return true;
         }
 
-        private static void GetRepository(UnityEngine.Object selectedObject, out PackageMapperRepository repository, out string packageLocalPath, out Mode currentMode)
+        private static List<PackageMapping> GetMappings()
         {
-            repository = null;
-            packageLocalPath = null;
-            currentMode = Mode.None;
+            List<PackageMapping> result = null;
 
-            var packageMapperRepositories = LostCoreSettings.Instance.PackageMapperRepositories;
-
-            string packageName = GetPackageName(selectedObject);
-
-            if (string.IsNullOrEmpty(packageName))
+            if (File.Exists(PackageMappingsPath))
             {
-                return;
+                string json = File.ReadAllText(PackageMappingsPath);
+                result = JsonUtil.Deserialize<List<PackageMapping>>(json);
             }
 
-            foreach (var repo in packageMapperRepositories)
-            {
-                if (repo.PackageIdentifier == packageName)
-                {
-                    repository = repo;
-                }
-            }
+            return result ?? new List<PackageMapping>();
+        }
 
-            if (repository == null)
-            {
-                Debug.LogError($"Unable to find Package Identifier {packageName} in \".packageutil\" config file.");
-                return;
-            }
+        private static string[] GetManifest()
+        {
+            return File.ReadAllLines(ManifestPath).Where(x => string.IsNullOrEmpty(x) == false).ToArray();
+        }
 
-            packageLocalPath = GetPackageLocalPath(repository.PackageIdentifier, repository.LocalSourceDirectories);
-
-            foreach (var line in File.ReadAllLines(ManifestPath))
-            {
-                if (line.Contains($"\"{repository.PackageIdentifier}\""))
-                {
-                    currentMode = line.Contains("file:") ? Mode.LocalFolder : Mode.GitHub;
-                }
-            }
+        private static void SaveMappings(List<PackageMapping> mappings)
+        {
+            File.WriteAllText(PackageMappingsPath, JsonUtil.Serialize(mappings));
         }
 
         private static void SwitchRepositoryTo(UnityEngine.Object selectedObject, Mode newMode)
         {
-            GetRepository(selectedObject, out PackageMapperRepository repository, out string packageLocalPath, out Mode _);
+            var manifest = GetManifest();
+            var packageName = GetPackageName(selectedObject);
+            var currentMode = GetPackageMode(manifest, packageName);
 
-            StringBuilder newFileContents = new StringBuilder();
+            var mappings = GetMappings();
+            var mapping = mappings.FirstOrDefault(x => x.PackageIdentifier == packageName);
+
+            // Making a new mapping and saving it
+            if (mapping == null)
+            {
+                mapping = new PackageMapping
+                {
+                    PackageIdentifier = packageName,
+                    GitUrl = GetGitPath(manifest, packageName),
+                    LocalPath = GetFilePath(manifest, packageName),
+                };
+
+                if (string.IsNullOrWhiteSpace(mapping.GitUrl))
+                {
+                    // TODO [bgish]: Prompt user for a Git Url
+                }
+
+                if (string.IsNullOrWhiteSpace(mapping.LocalPath))
+                {
+                    string folder = mappings.Count > 0 ? new DirectoryInfo(mappings[0].LocalPath).Parent.FullName : string.Empty;
+                    mapping.LocalPath = EditorUtility.OpenFolderPanel("Local Git Repository Directory", folder, string.Empty);
+                }
+
+                mappings.Add(mapping);
+                SaveMappings(mappings);
+            }
+
+            // Making sure we have valid values
+            if (string.IsNullOrWhiteSpace(mapping.LocalPath))
+            {
+                UnityEngine.Debug.LogError($"Skipping mapping package {mapping.PackageIdentifier}, no local path found.");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(mapping.GitUrl))
+            {
+                UnityEngine.Debug.LogError($"Skipping mapping package {mapping.PackageIdentifier}, no git url found.");
+                return;
+            }
+
+            // Updating the manifest
+            var newFileContents = new StringBuilder();
+
             foreach (var line in File.ReadAllLines(ManifestPath))
             {
-                if (line.Contains($"\"{repository.PackageIdentifier}\""))
+                if (line.Contains($"\"{mapping.PackageIdentifier}\""))
                 {
                     int colonIndex = line.IndexOf(":");
                     newFileContents.Append(line.Substring(0, colonIndex + 1));
 
-                    if (newMode == Mode.LocalFolder)
+                    if (newMode == Mode.Folder)
                     {
-                        newFileContents.AppendLine($" \"file:{packageLocalPath}\",");
+                        newFileContents.AppendLine($" \"file:{mapping.LocalPath}\",");
                     }
                     else
                     {
-                        newFileContents.AppendLine($" \"{repository.GitHubUrl}#{GetLastestGitHash(packageLocalPath)}\",");
+                        newFileContents.AppendLine($" \"{mapping.GitUrl}#{GetLastestGitHash(mapping.LocalPath)}\",");
                     }
                 }
                 else
@@ -192,10 +213,55 @@ namespace Lost
         private static string GetPackageName(UnityEngine.Object selectedObject)
         {
             string path = AssetDatabase.GetAssetPath(selectedObject);
+            string[] split = path?.Split('/');
 
-            if (path.StartsWith(PackagesPath) && Directory.Exists(path) && path.IndexOf("/") == path.LastIndexOf("/"))
+            return (path != null && path.StartsWith(PackagesPath) && Directory.Exists(path) && split?.Length == 2) ? split[1] : null;
+        }
+
+        private static Mode GetPackageMode(string[] manifest, string packageName)
+        {
+            return GetFilePath(manifest, packageName) != null ? Mode.Folder :
+                   GetGitPath(manifest, packageName) != null ? Mode.Git :
+                   Mode.None;
+        }
+
+        private static string GetFilePath(string[] manifest, string packageName)
+        {
+            if (string.IsNullOrWhiteSpace(packageName))
             {
-                return path.Substring(PackagesPath.Length);
+                return null;
+            }
+
+            foreach (var line in manifest.Where(x => x.Contains($"\"{packageName}\"")))
+            {
+                string fileStart = "\"file:";
+
+                if (line.Contains(fileStart))
+                {
+                    int fileStartIndex = line.IndexOf(fileStart) + fileStart.Length;
+                    int fileEndIndex = line.LastIndexOf("\"");
+                    return line.Substring(fileStartIndex, fileEndIndex - fileStartIndex).Replace("\\", "/");
+                }
+            }
+
+            return null;
+        }
+
+        private static string GetGitPath(string[] manifest, string packageName)
+        {
+            if (string.IsNullOrWhiteSpace(packageName))
+            {
+                return null;
+            }
+
+            foreach (var line in manifest.Where(x => x.Contains($"\"{packageName}\"")))
+            {
+                if (line.Contains(".git\",") || line.Contains(".git#"))
+                {
+                    int startIndex = line.IndexOf("\"", line.IndexOf(':')) + 1;
+                    int endIndex = line.Contains("#") ? line.IndexOf("#") : line.LastIndexOf("\"");
+                    return line.Substring(startIndex, endIndex - startIndex);
+                }
             }
 
             return null;

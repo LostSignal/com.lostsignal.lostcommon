@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------
-// <copyright file="LostCoreSettingsAssetModificationProcessor.cs" company="Lost Signal LLC">
+// <copyright file="LostSettingsAssetModificationProcessor.cs" company="Lost Signal LLC">
 //     Copyright (c) Lost Signal LLC. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -8,11 +8,11 @@ namespace Lost
 {
     using UnityEditor;
 
-    public class LostCoreSettingsAssetModificationProcessor : AssetModificationProcessor
+    public class LostSettingsAssetModificationProcessor : AssetModificationProcessor
     {
         public static void OnWillCreateAsset(string assetPath)
         {
-            LostCoreSettings.Instance.OverrideCSharpTemplateFiles(assetPath);
+            LostSettings.Instance.OverrideCSharpTemplateFiles(assetPath);
         }
     }
 }

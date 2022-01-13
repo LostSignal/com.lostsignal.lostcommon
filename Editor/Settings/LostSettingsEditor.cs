@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------
-// <copyright file="LostCoreSettingsEditor.cs" company="Lost Signal">
+// <copyright file="LostSettingsEditor.cs" company="Lost Signal">
 //     Copyright (c) Lost Signal. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -12,18 +12,19 @@ namespace Lost
     using UnityEditor;
     using UnityEngine;
 
-    [CustomEditor(typeof(LostCoreSettings))]
-    public class LostCoreSettingsEditor : Editor
+    [CustomEditor(typeof(LostSettings))]
+    public class LostSettingsEditor : Editor
     {
         private const int FoldoutId = 8942147;
 
-        private LostCoreSettings lostLibrarySettings;
+        private LostSettings lostLibrarySettings;
         private SerializedObject lostLibrarySerializedObject;
 
         // Line Endings and Serialization
         private SerializedProperty projectLineEndings;
         private SerializedProperty forceSerializationMode;
         private SerializedProperty serializationMode;
+        private SerializedProperty automaticallyFixLineEndingMismatches;
 
         // Source Control Ignore File
         private SerializedProperty sourceControlType;
@@ -54,9 +55,6 @@ namespace Lost
         // Analyzers
         private SerializedProperty analyzers;
 
-        // Package Mapper Settings
-        private SerializedProperty packageMapperRepositories;
-
         // GUID Fixer
         private SerializedProperty guidFixerSettings;
 
@@ -69,13 +67,15 @@ namespace Lost
                 this.DrawProjectSettingsProxies();
 
                 int currentFoldoutId = FoldoutId;
-                this.DrawSerializationAndLineSettings(currentFoldoutId++);
+                this.DrawLineSettings(currentFoldoutId++);
+                this.DrawSerialization(currentFoldoutId++);
                 this.DrawIgnoreFiles(currentFoldoutId++);
                 this.DrawEditorConfig(currentFoldoutId++);
                 this.DrawOverrideTemplateFiles(currentFoldoutId++);
                 this.DrawAnalyzers(currentFoldoutId++);
-                this.DrawPackageMapperSettings(currentFoldoutId++);
-                this.DrawGuidFixerSettings(currentFoldoutId++);
+                
+                //// NOTE [bgish]: This tool hasn't been created yet
+                //// this.DrawGuidFixerSettings(currentFoldoutId++);
             }
             catch (Exception ex)
             {
@@ -99,11 +99,11 @@ namespace Lost
         [SettingsProvider]
         private static SettingsProvider CreateLostLibrarySettingsProvider()
         {
-            LostCoreSettings.Instance.name = LostCoreSettings.InstanceName;
-            LostCoreSettings.Instance.Load();
+            LostSettings.Instance.name = LostSettings.InstanceName;
+            LostSettings.Instance.Load();
 
-            var keywords = GetSearchKeywordsFromSerializedProperties(LostCoreSettings.Instance);
-            var provider = AssetSettingsProvider.CreateProviderFromObject(LostCoreSettings.SettingsWindowPath, LostCoreSettings.Instance, keywords);
+            var keywords = GetSearchKeywordsFromSerializedProperties(LostSettings.Instance);
+            var provider = AssetSettingsProvider.CreateProviderFromObject(LostSettings.SettingsWindowPath, LostSettings.Instance, keywords);
 
             provider.inspectorUpdateHandler += () =>
             {
@@ -133,18 +133,19 @@ namespace Lost
 
         private void UpdateSerializedProperties()
         {
-            if (this.lostLibrarySettings == LostCoreSettings.Instance)
+            if (this.lostLibrarySettings == LostSettings.Instance)
             {
                 return;
             }
 
-            this.lostLibrarySettings = LostCoreSettings.Instance;
-            this.lostLibrarySerializedObject = new SerializedObject(LostCoreSettings.Instance);
+            this.lostLibrarySettings = LostSettings.Instance;
+            this.lostLibrarySerializedObject = new SerializedObject(LostSettings.Instance);
 
             // Line Endings and Serialization
             this.projectLineEndings = this.lostLibrarySerializedObject.FindProperty("projectLineEndings");
             this.forceSerializationMode = this.lostLibrarySerializedObject.FindProperty("forceSerializationMode");
             this.serializationMode = this.lostLibrarySerializedObject.FindProperty("serializationMode");
+            this.automaticallyFixLineEndingMismatches = this.lostLibrarySerializedObject.FindProperty("automaticallyFixLineEndingMismatches");
 
             // Editorconfig
             this.useEditorConfig = this.lostLibrarySerializedObject.FindProperty("useEditorConfig");
@@ -174,9 +175,6 @@ namespace Lost
 
             // Analyzers
             this.analyzers = this.lostLibrarySerializedObject.FindProperty("analyzers");
-
-            // Package Mapper
-            this.packageMapperRepositories = this.lostLibrarySerializedObject.FindProperty("packageMapperRepositories");
 
             // GUID Fixer
             this.guidFixerSettings = this.lostLibrarySerializedObject.FindProperty("guidFixerSettings");
@@ -232,9 +230,27 @@ namespace Lost
             }
         }
 
-        private void DrawSerializationAndLineSettings(int foldoutId)
+        private void DrawLineSettings(int foldoutId)
         {
-            using (new FoldoutScope(foldoutId, "Serialization and Line Settings", out bool visible))
+            using (new FoldoutScope(foldoutId, "Project Line Endings Settings", out bool visible))
+            {
+                if (visible == false)
+                {
+                    return;
+                }
+
+                using (new IndentLevelScope(1))
+                using (new LabelWidthScope(300))
+                {
+                    EditorGUILayout.PropertyField(this.projectLineEndings);
+                    EditorGUILayout.PropertyField(this.automaticallyFixLineEndingMismatches);
+                }
+            }
+        }
+
+        private void DrawSerialization(int foldoutId)
+        {
+            using (new FoldoutScope(foldoutId, "Project Serialization Mode", out bool visible))
             {
                 if (visible == false)
                 {
@@ -246,8 +262,6 @@ namespace Lost
                 {
                     EditorGUILayout.PropertyField(this.forceSerializationMode);
                     EditorGUILayout.PropertyField(this.serializationMode);
-                    EditorGUILayout.Space(10);
-                    EditorGUILayout.PropertyField(this.projectLineEndings);
                 }
             }
         }
@@ -320,22 +334,6 @@ namespace Lost
             }
         }
 
-        private void DrawPackageMapperSettings(int foldoutId)
-        {
-            using (new FoldoutScope(foldoutId, "Package Mapper", out bool visible))
-            {
-                if (visible == false)
-                {
-                    return;
-                }
-
-                using (new IndentLevelScope(2))
-                {
-                    EditorGUILayout.PropertyField(this.packageMapperRepositories);
-                }
-            }
-        }
-
         private void DrawGuidFixerSettings(int foldoutId)
         {
             using (new FoldoutScope(foldoutId, "GUID Fixer", out bool visible))
@@ -366,23 +364,23 @@ namespace Lost
                     EditorGUILayout.PropertyField(this.sourceControlType);
                     EditorGUILayout.Space(5);
 
-                    var sourceControl = (LostCoreSettings.SourceControlType)this.sourceControlType.intValue;
+                    var sourceControl = (LostSettings.SourceControlType)this.sourceControlType.intValue;
 
-                    if (sourceControl == LostCoreSettings.SourceControlType.Git)
+                    if (sourceControl == LostSettings.SourceControlType.Git)
                     {
                         EditorGUILayout.PropertyField(this.ignoreTemplateGit);
                     }
-                    else if (sourceControl == LostCoreSettings.SourceControlType.Collab)
+                    else if (sourceControl == LostSettings.SourceControlType.Collab)
                     {
                         EditorGUILayout.PropertyField(this.ignoreTemplateCollab);
                     }
-                    else if (sourceControl == LostCoreSettings.SourceControlType.Plastic)
+                    else if (sourceControl == LostSettings.SourceControlType.Plastic)
                     {
                         EditorGUILayout.PropertyField(this.ignoreTemplatePlastic);
                         EditorGUILayout.PropertyField(this.plasticAutoSetFileCasingError);
                         EditorGUILayout.PropertyField(this.plasticAutoSetYamlMergeToolPath);
                     }
-                    else if (sourceControl == LostCoreSettings.SourceControlType.Perforce)
+                    else if (sourceControl == LostSettings.SourceControlType.Perforce)
                     {
                         EditorGUILayout.PropertyField(this.ignoreTemplateP4);
                         EditorGUILayout.PropertyField(this.p4IgnoreFileName);

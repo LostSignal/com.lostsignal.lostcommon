@@ -22,7 +22,7 @@ namespace Lost
 
         public static void AddAnalyzersToCSProjects()
         {
-            var analyzers = LostCoreSettings.Instance.Analyzers;
+            var analyzers = LostSettings.Instance.Analyzers;
 
             foreach (var csProjFile in Directory.GetFiles(Directory.GetCurrentDirectory(), "*.csproj"))
             {

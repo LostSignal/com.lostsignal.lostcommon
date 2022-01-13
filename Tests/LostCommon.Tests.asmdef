@@ -1,5 +1,5 @@
 {
-    "name": "LostCore.Test",
+    "name": "LostCommon.Test",
     "rootNamespace": "",
     "references": [
         "GUID:8e683a3d6d1f7a74da811ef5727a2526",

@@ -1,5 +1,5 @@
 //-----------------------------------------------------------------------
-// <copyright file="LostCoreSettings.cs" company="Lost Signal">
+// <copyright file="LostSettings.cs" company="Lost Signal">
 //     Copyright (c) Lost Signal. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
@@ -9,23 +9,24 @@ namespace Lost
     using System;
     using System.Collections.Generic;
     using System.IO;
-    using System.Linq;
     using System.Text;
     using UnityEditor;
     using UnityEngine;
 
-    public class LostCoreSettings : ScriptableObject
+    public class LostSettings : ScriptableObject
     {
         public const string InstanceName = "Lost Signal Settings";
         public const string SettingsWindowPath = "Project/Lost Signal";
         public const string SettingsFilePath = "ProjectSettings/LostSignalSettings.asset";
 
-        private static LostCoreSettings instance;
+        private static LostSettings instance;
 
         #pragma warning disable 0649
-
-        // Line Endings and Serialization
+        // Line Endings
         [SerializeField] private LineEndings projectLineEndings;
+        [SerializeField] private bool automaticallyFixLineEndingMismatches;
+
+        // Serialization
         [SerializeField] private bool forceSerializationMode;
         [SerializeField] private SerializationMode serializationMode;
 
@@ -58,11 +59,10 @@ namespace Lost
 
         // Tools
         [SerializeField] private List<Analyzer> analyzers;
-        [SerializeField] private List<PackageMapperRepository> packageMapperRepositories;
         [SerializeField] private GuidFixerSettings guidFixerSettings;
         #pragma warning restore 0649
 
-        static LostCoreSettings()
+        static LostSettings()
         {
             EditorApplication.delayCall += Initialize;
         }
@@ -81,13 +81,13 @@ namespace Lost
             Collab,
         }
 
-        public static LostCoreSettings Instance
+        public static LostSettings Instance
         {
             get
             {
                 if (instance == null)
                 {
-                    instance = ScriptableObject.CreateInstance<LostCoreSettings>();
+                    instance = ScriptableObject.CreateInstance<LostSettings>();
                     instance.Load();
                 }
 
@@ -96,8 +96,6 @@ namespace Lost
         }
 
         public List<Analyzer> Analyzers => this.analyzers;
-
-        public List<PackageMapperRepository> PackageMapperRepositories => this.packageMapperRepositories;
 
         public GuidFixerSettings GuidFixerSettings => this.guidFixerSettings;
 
@@ -148,6 +146,7 @@ namespace Lost
         {
             // Line Endings and Serialization
             this.projectLineEndings = LineEndings.Unix;
+            this.automaticallyFixLineEndingMismatches = true;
             this.forceSerializationMode = true;
             this.serializationMode = SerializationMode.ForceText;
 
@@ -194,36 +193,10 @@ namespace Lost
                     },
                     CSProjects = new List<string>
                     {
-                        // "Assembly-CSharp",
-                        // "Assembly-CSharp.Player",
-                        // "Assembly-CSharp-Editor",
-                        "LostCore",
-                        "LostCore.Editor",
-                        "LostCore.Tests",
+                        "LostCommon",
+                        "LostCommon.Editor",
+                        "LostCommon.Tests",
                     },
-                },
-            };
-
-            // Package Mapper
-            this.packageMapperRepositories = new List<PackageMapperRepository>()
-            {
-                new PackageMapperRepository
-                {
-                    PackageIdentifier = "com.lostsignal.lostcore",
-                    GitHubUrl = "https://github.com/LostSignal/com.lostsignal.lostcore.git",
-                    LocalSourceDirectories = new List<string>(),
-                },
-                new PackageMapperRepository
-                {
-                    PackageIdentifier = "com.lostsignal.lostextras",
-                    GitHubUrl = "https://github.com/LostSignal/com.lostsignal.lostextras.git",
-                    LocalSourceDirectories = new List<string>(),
-                },
-                new PackageMapperRepository
-                {
-                    PackageIdentifier = "com.microsoft.playfab",
-                    GitHubUrl = "https://github.com/LostSignal/com.microsoft.playfab.git",
-                    LocalSourceDirectories = new List<string>(),
                 },
             };
 
@@ -250,7 +223,7 @@ namespace Lost
             }
 
             // Determining the company name and namespace
-            bool isLostFolder = assetPath.StartsWith("Packages/com.lostsignal.lostlibrary/");
+            bool isLostFolder = assetPath.StartsWith("Packages/com.lostsignal.");
             string companyName = "Lost Signal LLC";
             string nameSpace = "Lost";
 
@@ -401,7 +374,7 @@ namespace Lost
 
         private static void Initialize()
         {
-            var settings = LostCoreSettings.Instance;
+            var settings = LostSettings.Instance;
 
             // Make sure Line Endings are set
             if (EditorSettings.lineEndingsForNewScripts != Convert(settings.projectLineEndings))
@@ -427,6 +400,9 @@ namespace Lost
             // Auto set PlasticSCM settings
             settings.AutoSetPlasticSCMSettings();
 
+            // Listen for logs about inconsistent line endings
+            Application.logMessageReceived += OnLogMessageReceived;
+
             static LineEndingsMode Convert(LineEndings lineEndings)
             {
                 switch (lineEndings)
@@ -440,6 +416,30 @@ namespace Lost
                     default:
                         Debug.LogErrorFormat("Found unknown line endings type {0}", lineEndings);
                         return LineEndingsMode.Unix;
+                }
+            }
+        }
+
+        private static void OnLogMessageReceived(string condition, string stackTrace, LogType type)
+        {
+            if (Application.isPlaying == false &&
+                Instance.automaticallyFixLineEndingMismatches &&
+                condition.StartsWith("There are inconsistent line endings in the"))
+            {
+                int startIndex = condition.IndexOf("'") + 1;
+                int endIndex = condition.IndexOf("' script. Some are");
+
+                if (startIndex > 1 && endIndex > 0)
+                {
+                    string filePath = condition.Substring(startIndex, endIndex - startIndex);
+                    string fullFilePath = Path.GetFullPath(filePath).Replace("\\", "/");
+
+                    if (fullFilePath.Contains("/PackageCache/") == false)
+                    {
+                        string fileText = File.ReadAllText(fullFilePath);
+                        FileUtil.UpdateFile(FileUtil.ConvertLineEndings(fileText), fullFilePath, true);
+                        Debug.Log($"Fixed line endings for file {fullFilePath}");
+                    }
                 }
             }
         }
