@@ -19,7 +19,7 @@ namespace Lost
 
     public static class ExportNavMeshToObj
     {
-        [MenuItem("Tools/Lost/Tools/Export Scene NavMesh")]
+        [MenuItem("Tools/Lost/Export Scene NavMesh", priority = 51)]
         public static void ExportNavMeshForCurrentScene()
         {
             var sceneNavMesh = UnityEngine.AI.NavMesh.CalculateTriangulation();
@@ -29,11 +29,13 @@ namespace Lost
             mesh.vertices = sceneNavMesh.vertices;
             mesh.triangles = sceneNavMesh.indices;
 
-            string scenPath = EditorSceneManager.GetActiveScene().path;
-            string fileName = Path.GetFileNameWithoutExtension(scenPath) + " Nav Mesh.obj";
+            string scenePath = EditorSceneManager.GetActiveScene().path;
+            string sceneDirectory = Path.GetDirectoryName(scenePath);
+            string meshFileName = Path.GetFileNameWithoutExtension(scenePath) + " Nav Mesh.obj";
+            string meshFilePath = Path.Combine(sceneDirectory, meshFileName).Replace("\\", "/");
 
-            SimpleMeshToObjFile(mesh, fileName);
-            Debug.Log("Nav Mesh exported to '" + scenPath + "'");
+            SimpleMeshToObjFile(mesh, meshFilePath);
+            Debug.Log("Nav Mesh exported to '" + meshFilePath + "'");
             AssetDatabase.Refresh();
         }
 

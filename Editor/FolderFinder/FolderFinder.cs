@@ -13,7 +13,7 @@ namespace Lost
 
     public static class FolderFinder
     {
-        [MenuItem("Tools/Lost/Logs/Show Editor Logs")]
+        [MenuItem("Tools/Lost/Show Editor Logs", priority = 10)]
         public static void OpenEditorLogs()
         {
             if (Platform.EditorPlatform == Platform.UnityEditorPlatform.Windows)
@@ -30,7 +30,7 @@ namespace Lost
             }
         }
 
-        [MenuItem("Tools/Lost/Logs/Show Player Log")]
+        [MenuItem("Tools/Lost/Show Player Log", priority = 11)]
         public static void OpenPlayerLog()
         {
             if (Platform.EditorPlatform == Platform.UnityEditorPlatform.Windows)

@@ -73,7 +73,7 @@ namespace Lost
                 this.DrawEditorConfig(currentFoldoutId++);
                 this.DrawOverrideTemplateFiles(currentFoldoutId++);
                 this.DrawAnalyzers(currentFoldoutId++);
-                
+
                 //// NOTE [bgish]: This tool hasn't been created yet
                 //// this.DrawGuidFixerSettings(currentFoldoutId++);
             }

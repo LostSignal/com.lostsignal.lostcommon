@@ -21,7 +21,7 @@ namespace Lost
         private string apk;
         private bool reinstall;
 
-        [MenuItem("Tools/Lost/Tools/APK Install Tool")]
+        [MenuItem("Tools/Lost/APK Install Tool", priority = 50)]
         public static void ShowWindow()
         {
             EditorWindow.GetWindow<ApkInstallTool>(false, "APK Install Tool");

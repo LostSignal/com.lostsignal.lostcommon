@@ -14,7 +14,8 @@ namespace Lost
 
     public static class AnalyzerUtil
     {
-        [MenuItem("Tools/Lost/Actions/Lost Core/Add Analyzers To CS Projects")]
+        //// NOTE [bgish]: Uncommonent this if you need to generate analyzers often
+        //// [MenuItem("Tools/Lost/Actions/Add Analyzers To CS Projects")]
         public static void RunAnalyzerCode()
         {
             AnalyzerUtil.AddAnalyzersToCSProjects();

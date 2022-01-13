@@ -75,25 +75,25 @@ namespace Lost
             UpdateFile(contents, path, useSourceControl, EditorSettings.lineEndingsForNewScripts);
         }
 
-        public static void CopyFile(string sourceFile, string destinationFile, bool sourceControlCheckout, LineEndingsMode lineEndings)
+        public static void CopyFile(string sourceFilePath, string destinationFilePath, bool sourceControlCheckout, LineEndingsMode lineEndings)
         {
-            if (File.Exists(sourceFile) == false)
+            if (File.Exists(sourceFilePath) == false)
             {
-                Debug.LogErrorFormat("Unable to copy file {0} to {1}.  Source file does not exist!", sourceFile, destinationFile);
+                Debug.LogErrorFormat("Unable to copy file {0} to {1}.  Source file does not exist!", sourceFilePath, destinationFilePath);
             }
 
-            string fileContents = ConvertLineEndings(File.ReadAllText(sourceFile), lineEndings);
+            string fileContents = ConvertLineEndings(File.ReadAllText(sourceFilePath), lineEndings);
 
-            if (fileContents != File.ReadAllText(destinationFile))
+            if (fileContents != File.ReadAllText(destinationFilePath))
             {
                 // Checking out the file
                 if (sourceControlCheckout && Provider.enabled && Provider.isActive)
                 {
-                    Provider.Checkout(destinationFile, CheckoutMode.Asset).Wait();
+                    Provider.Checkout(destinationFilePath, CheckoutMode.Asset).Wait();
                 }
 
                 // Actually writing out the contents
-                File.WriteAllText(destinationFile, fileContents);
+                File.WriteAllText(destinationFilePath, fileContents);
             }
         }
 
@@ -176,19 +176,26 @@ namespace Lost
 
         public static void RemoveEmptyDirectories(string directory)
         {
+            directory = directory.Replace("\\", "/");
+
             foreach (var childDirectory in Directory.GetDirectories(directory))
             {
-                RemoveEmptyDirectories(childDirectory);
+                RemoveEmptyDirectories(childDirectory.Replace("\\", "/"));
             }
 
             if (Directory.GetDirectories(directory).Length == 0 && Directory.GetFiles(directory).Length == 0)
             {
-                //// TODO [bgish]: Verify that this works, maybe only do it for perforce?
-                //// if (Provider.isActive)
-                //// {
-                ////     Provider.Delete(directory).Wait();
-                //// }
-                //// else
+                // Source control check
+                if (directory.Contains("/.git/") || directory.Contains("/.plastic/") || directory.Contains("/.vs/"))
+                {
+                    return;
+                }
+
+                if (directory.Contains("/Assets/") && Provider.isActive)
+                {
+                    Provider.Delete(directory).Wait();
+                }
+                else
                 {
                     // Manually deleting the directory meta file first
                     var directoryMetaFile = directory + ".meta";

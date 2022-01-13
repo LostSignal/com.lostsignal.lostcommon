@@ -14,16 +14,38 @@ namespace Lost
 
     public static class MenuItemTools
     {
-        [MenuItem("Tools/Lost/Actions/Disable Warnings In C# Files (Selected Directory)", priority = 13)]
-        public static void DisableWarnings()
+        [MenuItem("Tools/Lost/Remove Empty Directories (Selected Directory)", priority = 30)]
+        public static void RemoveEmptyDirectoriesFromSelectedDirectory()
         {
-            ConvertAllCSharpFiles(true);
+            if (Selection.objects?.Length != 1)
+            {
+                Debug.LogError("No Folder Object selected to remove directories from.");
+                return;
+            }
+
+            var assetPath = AssetDatabase.GetAssetPath(Selection.objects[0]);
+            var fullPath = AssetDatabase.GetAssetPath(Selection.objects[0]);
+
+            if (Directory.Exists(fullPath) == false)
+            {
+                Debug.LogError("Selected object is not a directory.");
+                return;
+            }
+
+            FileUtil.RemoveEmptyDirectories(fullPath);
+            EditorApplication.delayCall += AssetDatabase.Refresh;
+        }
+
+        [MenuItem("Tools/Lost/Cleanup C# Files (Selected Directory)", priority = 31)]
+        public static void ConvertAllCSharpFiles()
+        {
             ConvertAllCSharpFiles(false);
         }
 
-        [MenuItem("Tools/Lost/Actions/Cleanup C# Files (Selected Directory)", priority = 12)]
-        public static void ConvertAllCSharpFiles()
+        [MenuItem("Tools/Lost/Disable Warnings In C# Files (Selected Directory)", priority = 32)]
+        public static void DisableWarnings()
         {
+            ConvertAllCSharpFiles(true);
             ConvertAllCSharpFiles(false);
         }
 
@@ -105,135 +127,6 @@ namespace Lost
             }
         }
 
-        [MenuItem("Tools/Lost/Actions/Warnings As Errors/Create Warnings As Errors File", priority = 1)]
-        public static void GenerateWarngingsAsErrorsFile()
-        {
-            string mcsFilePath = "Assets/mcs.rsp";
-            string warningsAsErrors = "-warnaserror+";
-
-            if (File.Exists(mcsFilePath))
-            {
-                StringBuilder fileContents = new StringBuilder();
-                fileContents.AppendLine(warningsAsErrors);
-
-                foreach (var line in File.ReadAllLines(mcsFilePath))
-                {
-                    if (line.Trim() == warningsAsErrors)
-                    {
-                        return; // no need to generate the file since the warnings as error command exists
-                    }
-                    else
-                    {
-                        fileContents.AppendLine(line);
-                    }
-                }
-
-                // checking out the file
-                if (Provider.enabled && Provider.isActive)
-                {
-                    Provider.Checkout(mcsFilePath, CheckoutMode.Asset).Wait();
-                }
-
-                try
-                {
-                    File.WriteAllText(mcsFilePath, fileContents.ToString());
-                }
-                catch
-                {
-                    Debug.LogErrorFormat("Unable to update file {0}.  Is it read only?", mcsFilePath);
-                }
-            }
-            else
-            {
-                FileUtil.CreateFile(warningsAsErrors, mcsFilePath, true);
-            }
-        }
-
-        [MenuItem("Tools/Lost/Actions/Warnings As Errors/Remove Warnings As Errors File", priority = 1)]
-        public static void RemoveWarngingsAsErrorsFile()
-        {
-            string mcsFilePath = "Assets/mcs.rsp";
-            string warningsAsErrors = "-warnaserror+";
-
-            if (File.Exists(mcsFilePath))
-            {
-                StringBuilder fileContents = new StringBuilder();
-
-                foreach (var line in File.ReadAllLines(mcsFilePath))
-                {
-                    // Skip the warnings as errors line
-                    if (line.Trim() == warningsAsErrors)
-                    {
-                        continue;
-                    }
-
-                    fileContents.AppendLine(line);
-                }
-
-                // If the file is empty, then we should just delete it
-                bool shouldDeleteFile = string.IsNullOrEmpty(fileContents.ToString().Trim());
-
-                if (Provider.enabled && Provider.isActive)
-                {
-                    if (shouldDeleteFile)
-                    {
-                        Provider.Delete(mcsFilePath).Wait();
-                    }
-                    else
-                    {
-                        Provider.Checkout(mcsFilePath, CheckoutMode.Asset).Wait();
-                    }
-                }
-
-                try
-                {
-                    if (shouldDeleteFile)
-                    {
-                        // Making sure it still exists (Provider.Delete might have already deleted it)
-                        if (File.Exists(mcsFilePath))
-                        {
-                            File.Delete(mcsFilePath);
-                        }
-                    }
-                    else
-                    {
-                        File.WriteAllText(mcsFilePath, fileContents.ToString());
-                    }
-                }
-                catch
-                {
-                    Debug.LogErrorFormat("Unable to update file {0}.  Is it read only?", mcsFilePath);
-                }
-
-                AssetDatabase.Refresh();
-            }
-        }
-
-        [MenuItem("Tools/Lost/Actions/Remove Empty Directories")]
-        public static void RemoveEmptyDirectories()
-        {
-            FileUtil.RemoveEmptyDirectories("Assets");
-            EditorApplication.delayCall += AssetDatabase.Refresh;
-        }
-
-        [MenuItem("Tools/Lost/Actions/Generate Files/.gitignore")]
-        public static void GenerateGitIgnoreFile()
-        {
-            GenerateFile("gitignore", ".gitignore", "fae63426d3cf11c4cb39244488e2ec17");
-        }
-
-        [MenuItem("Tools/Lost/Actions/Generate Files/.p4ignore")]
-        public static void GenerateP4IgnoreFile()
-        {
-            GenerateFile("p4ignore", ".p4ignore", "6d6c8d3e6aeaff34d89c7f2be0a80a0d");
-        }
-
-        [MenuItem("Tools/Lost/Actions/Generate Files/.editorconfig")]
-        public static void GenerateEditorConfigFile()
-        {
-            GenerateFile("editor config", ".editorconfig", "f6c774b1ff43524428c88bc6afaca2d7");
-        }
-
         public static void GenerateFile(string displayName, string filePath, string guid)
         {
             var textAsset = EditorUtil.GetAssetByGuid<TextAsset>(guid);
@@ -248,7 +141,7 @@ namespace Lost
                 {
                     try
                     {
-                        FileUtil.CopyFile(textAsset.text, filePath, false);
+                        FileUtil.UpdateFile(textAsset.text, filePath, false);
                     }
                     catch
                     {
