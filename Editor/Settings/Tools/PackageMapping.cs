@@ -14,7 +14,7 @@ namespace Lost
     {
         #pragma warning disable 0649
         [SerializeField] private string packageIdentifier;
-        [SerializeField] private string gitHubUrl;
+        [SerializeField] private string gitUrl;
         [SerializeField] private string localPath;
         #pragma warning restore 0649
 
@@ -26,8 +26,8 @@ namespace Lost
 
         public string GitUrl
         {
-            get => this.gitHubUrl;
-            set => this.gitHubUrl = value;
+            get => this.gitUrl;
+            set => this.gitUrl = value;
         }
 
         public string LocalPath
