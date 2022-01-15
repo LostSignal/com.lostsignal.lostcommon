@@ -99,6 +99,8 @@ namespace Lost
 
         public GuidFixerSettings GuidFixerSettings => this.guidFixerSettings;
 
+        public bool AutomaticallyFixLineEndingMismatches => this.automaticallyFixLineEndingMismatches;
+
         public void Save()
         {
             if (instance == null)
@@ -400,9 +402,6 @@ namespace Lost
             // Auto set PlasticSCM settings
             settings.AutoSetPlasticSCMSettings();
 
-            // Listen for logs about inconsistent line endings
-            Application.logMessageReceived += OnLogMessageReceived;
-
             static LineEndingsMode Convert(LineEndings lineEndings)
             {
                 switch (lineEndings)
@@ -416,30 +415,6 @@ namespace Lost
                     default:
                         Debug.LogErrorFormat("Found unknown line endings type {0}", lineEndings);
                         return LineEndingsMode.Unix;
-                }
-            }
-        }
-
-        private static void OnLogMessageReceived(string condition, string stackTrace, LogType type)
-        {
-            if (Application.isPlaying == false &&
-                Instance.automaticallyFixLineEndingMismatches &&
-                condition.StartsWith("There are inconsistent line endings in the"))
-            {
-                int startIndex = condition.IndexOf("'") + 1;
-                int endIndex = condition.IndexOf("' script. Some are");
-
-                if (startIndex > 1 && endIndex > 0)
-                {
-                    string filePath = condition.Substring(startIndex, endIndex - startIndex);
-                    string fullFilePath = Path.GetFullPath(filePath).Replace("\\", "/");
-
-                    if (fullFilePath.Contains("/PackageCache/") == false)
-                    {
-                        string fileText = File.ReadAllText(fullFilePath);
-                        FileUtil.UpdateFile(FileUtil.ConvertLineEndings(fileText), fullFilePath, true);
-                        Debug.Log($"Fixed line endings for file {fullFilePath}");
-                    }
                 }
             }
         }
