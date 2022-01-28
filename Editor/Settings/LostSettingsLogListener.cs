@@ -39,7 +39,7 @@ namespace Lost
                 string filePath = condition.Substring(startIndex, endIndex - startIndex);
                 string fullFilePath = Path.GetFullPath(filePath).Replace("\\", "/");
 
-                if (fullFilePath.Contains("/PackageCache/") == false)
+                if (PackageCacheUtil.IsInPackageCache(fullFilePath) == false)
                 {
                     string fileText = File.ReadAllText(fullFilePath);
                     Debug.Log($"Fixed line endings for file {fullFilePath}");

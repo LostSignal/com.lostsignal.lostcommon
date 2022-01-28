@@ -104,7 +104,8 @@ namespace Lost
                 }
 
                 // Special Case for Process Scene
-                if (typeof(T) == typeof(EditorEvents.OnProcessSceneAttribute))
+                if (typeof(T) == typeof(EditorEvents.OnProcessSceneAttribute) ||
+                    typeof(T) == typeof(EditorEvents.OnProcessSceneBuildAttribute))
                 {
                     var scene = parameters[0];
                     var buildReport = parameters[1];
@@ -158,6 +159,11 @@ namespace Lost
         void IProcessSceneWithReport.OnProcessScene(Scene scene, BuildReport report)
         {
             ExecuteAttribute<EditorEvents.OnProcessSceneAttribute>(scene, report);
+
+            if(Application.isPlaying == false && (Application.isBatchMode || BuildPipeline.isBuildingPlayer))
+            {
+                ExecuteAttribute<EditorEvents.OnProcessSceneBuildAttribute>(scene, report);
+            }
         }
 
 #if UNITY_ANDROID

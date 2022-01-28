@@ -9,6 +9,7 @@
 namespace Lost
 {
     using System.Collections;
+    using System.Collections.Generic;
     using UnityEngine;
 
     public static class TransformExtensions
@@ -103,6 +104,23 @@ namespace Lost
                 }
 
                 transform.rotation = Quaternion.LookRotation(lookAtTransform.position - transform.position);
+            }
+        }
+
+        public static List<Transform> GetChildrenRecursively(this Transform transform)
+        {
+            List<Transform> children = new List<Transform>();
+            GetChildrenRecursively(transform, children);
+            return children;
+        }
+
+        public static void GetChildrenRecursively(this Transform transform, List<Transform> results)
+        {
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                var child = transform.GetChild(i);
+                results.Add(child);
+                GetChildrenRecursively(child, results);
             }
         }
     }

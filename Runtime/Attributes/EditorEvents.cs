@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // <copyright file="EditorEvents.cs" company="Lost Signal LLC">
 //     Copyright (c) Lost Signal LLC. All rights reserved.
 // </copyright>
@@ -34,6 +34,10 @@ namespace Lost
         }
 
         public sealed class OnProcessSceneAttribute : System.Attribute
+        {
+        }
+
+        public sealed class OnProcessSceneBuildAttribute : System.Attribute
         {
         }
 

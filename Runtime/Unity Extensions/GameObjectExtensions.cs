@@ -154,6 +154,23 @@ namespace Lost
             PrivateDestroyAllRecursively(gameObject);
         }
 
+        public static List<GameObject> GetChildrenRecursively(this GameObject gameObject)
+        {
+            List<GameObject> children = new List<GameObject>();
+            GetChildrenRecursively(gameObject, children);
+            return children;
+        }
+
+        public static void GetChildrenRecursively(this GameObject gameObject, List<GameObject> results)
+        {
+            for (int i = 0; i < gameObject.transform.childCount; i++)
+            {
+                var child = gameObject.transform.GetChild(i).gameObject;
+                results.Add(child);
+                GetChildrenRecursively(child, results);
+            }
+        }
+
         private static void PrivateSetLayerRecursively(GameObject gameObject, int layer)
         {
             if (gameObject.layer != layer)
