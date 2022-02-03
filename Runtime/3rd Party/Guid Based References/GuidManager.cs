@@ -24,7 +24,7 @@ namespace Lost
         //// NOTE [bgish]: This class needs to be reset eventually, just not sure when
         ////               Try with Reload Domain and Reload Scene off
         ////               Also check if gameobejcts in scene get destroyed when entering play mode.
-        //// 
+        ////
         //// [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
         //// private static void RuntimeInit()
         //// {

@@ -10,19 +10,19 @@ namespace Lost
     using UnityEngine;
 
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false, Inherited = true)]
-    public class ShowIfAttribute : PropertyAttribute
+    public sealed class ShowIfAttribute : PropertyAttribute
     {
         private readonly string conditionFieldName;
         private readonly object compareValue;
-
-        public string ConditionFieldName => this.conditionFieldName;
-
-        public object CompareValue => this.compareValue;
 
         public ShowIfAttribute(string conditionFieldName, object compareValue)
         {
             this.conditionFieldName = conditionFieldName;
             this.compareValue = compareValue;
         }
+
+        public string ConditionFieldName => this.conditionFieldName;
+
+        public object CompareValue => this.compareValue;
     }
 }

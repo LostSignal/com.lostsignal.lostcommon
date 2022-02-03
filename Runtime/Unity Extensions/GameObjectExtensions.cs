@@ -17,7 +17,7 @@ namespace Lost
         {
             return GetFullNameRecursive(gameObject.transform);
 
-            string GetFullNameRecursive(Transform transform)
+            static string GetFullNameRecursive(Transform transform)
             {
                 if (transform.parent != null)
                 {
