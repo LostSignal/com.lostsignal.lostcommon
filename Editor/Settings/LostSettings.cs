@@ -363,6 +363,26 @@ namespace Lost
             }
         }
 
+        public string AddEditorConfigToCSProj(string csProjContents)
+        {
+            var editorconfigInclude = $"<None Include=\"{this.editorConfigFileName}\" />";
+
+            if (this.useEditorConfig && csProjContents.Contains(editorconfigInclude) == false)
+            {
+                var itemGroup = new StringBuilder();
+                itemGroup.AppendLine($"  <ItemGroup>");
+                itemGroup.AppendLine($"    {editorconfigInclude}");
+                itemGroup.AppendLine($"  </ItemGroup>");
+
+                int firstItemGroupIndex = csProjContents.IndexOf("  <ItemGroup>");
+                return csProjContents.Insert(firstItemGroupIndex, itemGroup.ToString());
+            }
+            else
+            {
+                return csProjContents;
+            }
+        }
+
         private static void Initialize()
         {
             var settings = LostSettings.Instance;

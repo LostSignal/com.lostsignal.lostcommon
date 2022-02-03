@@ -17,7 +17,10 @@ namespace Lost
 
         public static string OnGeneratedCSProject(string path, string content)
         {
-            return AnalyzerUtil.AddAnalyzersToCSProjects(path, content);
+            content = LostSettings.Instance.AddEditorConfigToCSProj(content);
+            content = AnalyzerUtil.AddAnalyzersToCSProjects(path, content);
+
+            return content;
         }
     }
 }
