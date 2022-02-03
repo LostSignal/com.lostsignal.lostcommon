@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // <copyright file="AnalyzerUtil.cs" company="Lost Signal LLC">
 //     Copyright (c) Lost Signal LLC. All rights reserved.
 // </copyright>
@@ -14,38 +14,28 @@ namespace Lost
 
     public static class AnalyzerUtil
     {
-        //// NOTE [bgish]: Uncommonent this if you need to generate analyzers often
-        //// [MenuItem("Tools/Lost/Actions/Add Analyzers To CS Projects")]
-        public static void RunAnalyzerCode()
+        public static string AddAnalyzersToCSProjects(string csProjFilePath, string csprojFileContents)
         {
-            AnalyzerUtil.AddAnalyzersToCSProjects();
-        }
-
-        public static void AddAnalyzersToCSProjects()
-        {
+            var fileName = Path.GetFileNameWithoutExtension(csProjFilePath);
             var analyzers = LostSettings.Instance.Analyzers;
 
-            foreach (var csProjFile in Directory.GetFiles(Directory.GetCurrentDirectory(), "*.csproj"))
+            if (analyzers?.Count > 0)
             {
-                if (analyzers == null || analyzers.Count == 0)
-                {
-                    continue;
-                }
-
                 for (int i = 0; i < analyzers.Count; i++)
                 {
                     var analyzer = analyzers[i];
-                    var fileName = Path.GetFileNameWithoutExtension(csProjFile);
 
                     if (analyzer.CSProjects.Contains(fileName))
                     {
-                        AddAnalyzerToCSProj(analyzer, csProjFile, i);
+                        csprojFileContents = AddAnalyzerToCSProj(csprojFileContents, analyzer, i);
                     }
                 }
             }
+
+            return csprojFileContents;
         }
 
-        private static void AddAnalyzerToCSProj(Analyzer analyzer, string csprojFilePath, int analyzerIndex)
+        private static string AddAnalyzerToCSProj(string contents, Analyzer analyzer, int analyzerIndex)
         {
             var additionalFiles = new List<string>();
             var ruleSets = new List<string>();
@@ -69,7 +59,7 @@ namespace Lost
                 }
             }
 
-            AnalyzerUtil.UpdateCSProjFile(csprojFilePath, additionalFiles, ruleSets, analyzers);
+            return AnalyzerUtil.UpdateCSProjFile(contents, additionalFiles, ruleSets, analyzers);
 
             string CreateDLL(UnityEngine.TextAsset dllAsset)
             {
@@ -99,15 +89,15 @@ namespace Lost
             string FullPath(UnityEngine.Object obj) => Path.GetFullPath(AssetDatabase.GetAssetPath(obj));
         }
 
-        private static void UpdateCSProjFile(string csprojFilePath, List<string> additionalFiles, List<string> rulesetFiles, List<string> analyzerDlls)
+        private static string UpdateCSProjFile(string csprojFileContents, List<string> additionalFiles, List<string> rulesetFiles, List<string> analyzerDlls)
         {
-            var lines = File.ReadAllLines(csprojFilePath).ToList();
+            var lines = csprojFileContents.Replace("\r\n", "\n").Split("\n").ToList();
 
             AddRulesets(rulesetFiles, lines);
             AddAnalyzerDLLs(analyzerDlls, lines);
             AddAdditionalFiles(additionalFiles, lines);
 
-            File.WriteAllText(csprojFilePath, GetFileContents(lines));
+            return GetFileContents(lines);
 
             void AddRulesets(List<string> files, List<string> lines)
             {

@@ -10,11 +10,14 @@ namespace Lost
 
     public class LostSettingsAssetPostprocessor : AssetPostprocessor
     {
-        private static void OnGeneratedCSProjectFiles()
+        public static string OnGeneratedSlnSolution(string path, string content)
         {
-            LostSettings.Instance.AddEditorConfigToSolution();
+            return LostSettings.Instance.AddEditorConfigToSolution(content);
+        }
 
-            AnalyzerUtil.AddAnalyzersToCSProjects();
+        public static string OnGeneratedCSProject(string path, string content)
+        {
+            return AnalyzerUtil.AddAnalyzersToCSProjects(path, content);
         }
     }
 }

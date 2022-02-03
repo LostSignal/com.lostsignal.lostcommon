@@ -339,26 +339,15 @@ namespace Lost
             }
         }
 
-        public void AddEditorConfigToSolution()
+        public string AddEditorConfigToSolution(string solutionContents)
         {
-            if (this.useEditorConfig == false)
+            if (this.useEditorConfig && solutionContents.Contains(this.editorConfigFileName) == false)
             {
-                return;
+                return solutionContents.Insert(solutionContents.IndexOf("Global"), GetEditorconfigString());
             }
-
-            foreach (var solutionFile in Directory.GetFiles(Directory.GetCurrentDirectory(), "*.sln"))
+            else
             {
-                FixSolution(solutionFile);
-            }
-
-            void FixSolution(string solutionFilePath)
-            {
-                string content = File.ReadAllText(solutionFilePath);
-
-                if (File.Exists(this.editorConfigFileName) && content.Contains(this.editorConfigFileName) == false)
-                {
-                    File.WriteAllText(solutionFilePath, content.Insert(content.IndexOf("Global"), GetEditorconfigString()));
-                }
+                return solutionContents;
             }
 
             static string GetEditorconfigString()
