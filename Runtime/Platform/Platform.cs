@@ -161,18 +161,12 @@ namespace Lost
 
         public static bool IsIosOrAndroid
         {
-            get
+            get => CurrentDevicePlatform switch
             {
-                switch (CurrentDevicePlatform)
-                {
-                    case DevicePlatform.iOS:
-                    case DevicePlatform.Android:
-                        return true;
-
-                    default:
-                        return false;
-                }
-            }
+                DevicePlatform.iOS => true,
+                DevicePlatform.Android => true,
+                _ => false,
+            };
         }
 
         public static bool IsTouchSupported
@@ -282,6 +276,7 @@ namespace Lost
         }
 
         [EditorEvents.OnExitingPlayMode]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Called By Unity")]
         private static void OnExitPlayMode()
         {
             IsApplicationQuitting = true;

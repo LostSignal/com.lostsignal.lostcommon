@@ -21,18 +21,17 @@ namespace Lost
     // or other methods to track down the specific objects need by any given system
 
     // Ideally this would be a struct, but we need the ISerializationCallbackReciever
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2235:Mark all non-serializable fields", Justification = "Using Unity Serialization")]
     [System.Serializable]
     public class GuidReference : ISerializationCallbackReceiver
     {
-        // cache the referenced Game Object if we find one for performance
-        private GameObject cachedReference;
-        private bool isCacheSet;
+        // Cache the referenced Game Object if we find one for performance
+        [NonSerialized] private GameObject cachedReference;
+        [NonSerialized] private bool isCacheSet;
+        [NonSerialized] private System.Guid guid;
 
         // store our GUID in a form that Unity can save
         [SerializeField]
         private byte[] serializedGuid;
-        private System.Guid guid;
 
 #if UNITY_EDITOR
         // decorate with some extra info in Editor so we can inform a user of what that GUID means

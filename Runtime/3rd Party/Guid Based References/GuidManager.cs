@@ -95,7 +95,7 @@ namespace Lost
         {
             Guid guid = guidComponent.GetGuid();
 
-            GuidInfo info = new GuidInfo(guidComponent);
+            var info = new GuidInfo(guidComponent);
 
             if (this.guidToObjectMap.ContainsKey(guid) == false)
             {

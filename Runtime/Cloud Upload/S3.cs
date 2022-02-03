@@ -26,7 +26,7 @@ namespace Lost.Addressables
         {
             string today = string.Format("{0:ddd,' 'dd' 'MMM' 'yyyy' 'HH':'mm':'ss' 'zz00}", DateTime.Now);
 
-            StringBuilder stringToSignBuilder = new StringBuilder();
+            var stringToSignBuilder = new StringBuilder();
             stringToSignBuilder.Append("PUT");
             stringToSignBuilder.Append("\n\n");
             stringToSignBuilder.Append(ContentType);
@@ -39,14 +39,14 @@ namespace Lost.Addressables
             stringToSignBuilder.Append("/");
             stringToSignBuilder.Append(key);
 
-            Encoding utf8Encoder = new UTF8Encoding();
-            HMACSHA1 signature = new HMACSHA1(utf8Encoder.GetBytes(config.SecretKeyId));
+            var utf8Encoder = new UTF8Encoding();
+            var signature = new HMACSHA1(utf8Encoder.GetBytes(config.SecretKeyId));
             string encodedCanonical = Convert.ToBase64String(signature.ComputeHash(utf8Encoder.GetBytes(stringToSignBuilder.ToString())));
 
             string authHeader = "AWS " + config.AccessKeyId + ":" + encodedCanonical;
             string uri = "http://" + config.BucketName + ".s3.amazonaws.com/" + key;
 
-            Dictionary<string, string> headers = new Dictionary<string, string>
+            var headers = new Dictionary<string, string>
             {
                 { "Authorization", authHeader },
                 { "x-amz-date", today },

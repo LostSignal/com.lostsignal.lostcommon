@@ -37,7 +37,7 @@ namespace Lost.Addressables
                 { "x-ms-blob-type", "BlockBlob" },
             };
 
-            StringBuilder resource = new StringBuilder();
+            var resource = new StringBuilder();
             resource.Append("/");
             resource.Append(config.StorageAccountName);
             resource.Append("/");
@@ -57,9 +57,9 @@ namespace Lost.Addressables
 
             var uri = string.Format("https://{0}.blob.core.windows.net/{1}?restype=container&comp=list&prefix={2}", config.StorageAccountName, config.ContainerName, prefix);
 
-            Dictionary<string, string> headers = new Dictionary<string, string>();
+            var headers = new Dictionary<string, string>();
 
-            StringBuilder resource = new StringBuilder();
+            var resource = new StringBuilder();
             resource.Append("/");
             resource.Append(config.StorageAccountName);
             resource.Append("/");
@@ -76,7 +76,7 @@ namespace Lost.Addressables
 
             string xml = SendWithHttpWebRequest(uri, headers, null);
 
-            List<string> fileNames = new List<string>();
+            var fileNames = new List<string>();
             string startNameXml = "<Blob><Name>";
             string endNameXml = "</Name><Properties>";
 
@@ -111,7 +111,7 @@ namespace Lost.Addressables
             headers.Add("x-ms-version", "2017-04-17");
 
             // Generating Message Signature
-            StringBuilder messageSignatureBuilder = new StringBuilder();
+            var messageSignatureBuilder = new StringBuilder();
             messageSignatureBuilder.Append(content == null ? GetMethod : PutMethod);
             messageSignatureBuilder.Append("\n\n\n");
             messageSignatureBuilder.Append(content == null ? string.Empty : content.Length.ToString());
@@ -163,7 +163,7 @@ namespace Lost.Addressables
 
             using WebResponse webResponse = webRequest.GetResponse();
             using Stream responseStream = webResponse.GetResponseStream();
-            using StreamReader streamReader = new StreamReader(responseStream);
+            using var streamReader = new StreamReader(responseStream);
 
             return streamReader.ReadToEnd();
         }

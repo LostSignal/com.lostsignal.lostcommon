@@ -65,7 +65,7 @@ namespace Lost
 
         public static IEnumerator Translate(this RectTransform rectTransform, Vector2 start, Vector2 end, float timeLengthInSeconds, float delayInSeconds, AnimationCurve animCurve)
         {
-            float percentage = 0.0f;
+            float percentage;
             float animCurveValue = 0.0f;
             float time = 0.0f;
 

@@ -66,7 +66,7 @@ namespace Lost
         public static List<T> GetOrAddComponents<T>(this GameObject gameObject, int count)
             where T : Component
         {
-            List<T> results = new List<T>(gameObject.GetComponents<T>());
+            var results = new List<T>(gameObject.GetComponents<T>());
 
             int needed = count - results.Count;
             for (int i = 0; i < needed; i++)

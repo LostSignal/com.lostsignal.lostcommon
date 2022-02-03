@@ -109,7 +109,7 @@ namespace Lost
 
         public static List<Transform> GetChildrenRecursively(this Transform transform)
         {
-            List<Transform> children = new List<Transform>();
+            var children = new List<Transform>();
             GetChildrenRecursively(transform, children);
             return children;
         }
