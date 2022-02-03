@@ -1,4 +1,4 @@
-﻿#pragma warning disable
+#pragma warning disable
 
 //-----------------------------------------------------------------------
 // <copyright file="ProjectDefinesHelper.cs" company="Lost Signal LLC">
@@ -10,6 +10,7 @@
 
 namespace Lost
 {
+    using System;
     using System.Collections.Generic;
 
     #if UNITY_EDITOR
@@ -21,21 +22,10 @@ namespace Lost
         public static void AddDefineToProject(string defineToAdd)
         {
             #if UNITY_EDITOR
-            var validGroups = new List<UnityEditor.BuildTargetGroup>
-            {
-                UnityEditor.BuildTargetGroup.Standalone,
-                UnityEditor.BuildTargetGroup.iOS,
-                UnityEditor.BuildTargetGroup.Android,
-                UnityEditor.BuildTargetGroup.WebGL,
-                UnityEditor.BuildTargetGroup.WSA,
-                UnityEditor.BuildTargetGroup.PS4,
-                UnityEditor.BuildTargetGroup.XboxOne,
-                UnityEditor.BuildTargetGroup.tvOS,
-                UnityEditor.BuildTargetGroup.Switch,
-                UnityEditor.BuildTargetGroup.Lumin,
-            };
 
-            foreach (var buildTargetGroup in validGroups)
+            var buildTargetGroups = (UnityEditor.BuildTargetGroup[])Enum.GetValues(typeof(UnityEditor.BuildTargetGroup));
+
+            foreach (var buildTargetGroup in buildTargetGroups)
             {
                 string currentDefinesString = UnityEditor.PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
                 string newDefinesString = GetNewDefinesString(buildTargetGroup);
@@ -52,6 +42,8 @@ namespace Lost
                 currentDefines.AddIfUnique(defineToAdd);
                 return string.Join(";", currentDefines);
             }
+
+            UnityEditor.AssetDatabase.SaveAssets();
 
             #endif
         }
