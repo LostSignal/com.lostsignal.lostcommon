@@ -26,24 +26,13 @@ namespace Lost
             this.startTime = DateTime.Now;
         }
 
-        /// <summary>
-        /// Releases all resource used by the <see cref="Lost.TimingLogger"/> object.
-        /// </summary>
-        /// <remarks>
-        /// Call <see cref="Dispose"/> when you are finished using the <see cref="LostEngine.LostTimingLogger"/>. The
-        /// <see cref="Dispose"/> method leaves the <see cref="LostEngine.LostTimingLogger"/> in an unusable state. After
-        /// calling <see cref="Dispose"/>, you must release all references to the <see cref="LostEngine.LostTimingLogger"/> so
-        /// the garbage collector can reclaim the memory that the <see cref="LostEngine.LostTimingLogger"/> was occupying.
-        /// </remarks>
-        public void Dispose()
-        {
-            Debug.LogFormat($"{this.message} took {GetTimeAsString(this.startTime, DateTime.Now)}");
-        }
-
         public static string GetTimeAsString(DateTime start, DateTime end)
         {
-            var timeSpan = end.Subtract(start);
+            return GetTimeAsString(end.Subtract(start));
+        }
 
+        public static string GetTimeAsString(TimeSpan timeSpan)
+        {
             if (timeSpan.TotalHours >= 1.0)
             {
                 return $"{timeSpan.TotalHours:0.00} Hours";
@@ -60,6 +49,20 @@ namespace Lost
             {
                 return $"{timeSpan.TotalMilliseconds:0.00} Milliseconds";
             }
+        }
+
+        /// <summary>
+        /// Releases all resource used by the <see cref="Lost.TimingLogger"/> object.
+        /// </summary>
+        /// <remarks>
+        /// Call <see cref="Dispose"/> when you are finished using the <see cref="LostEngine.LostTimingLogger"/>. The
+        /// <see cref="Dispose"/> method leaves the <see cref="LostEngine.LostTimingLogger"/> in an unusable state. After
+        /// calling <see cref="Dispose"/>, you must release all references to the <see cref="LostEngine.LostTimingLogger"/> so
+        /// the garbage collector can reclaim the memory that the <see cref="LostEngine.LostTimingLogger"/> was occupying.
+        /// </remarks>
+        public void Dispose()
+        {
+            Debug.LogFormat($"{this.message} took {GetTimeAsString(this.startTime, DateTime.Now)}");
         }
     }
 }

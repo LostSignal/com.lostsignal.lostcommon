@@ -7,6 +7,7 @@
 namespace Lost
 {
     using System.IO;
+    using System.Linq;
     using System.Text;
     using UnityEditor;
     using UnityEditor.VersionControl;
@@ -14,6 +15,25 @@ namespace Lost
 
     public static class FileUtil
     {
+        public static void DeleteDirectory(string directoryPath)
+        {
+            foreach (var file in Directory.GetFiles(directoryPath, "*", SearchOption.AllDirectories))
+            {
+                File.Delete(file);
+            }
+
+            var directories = Directory.GetDirectories(directoryPath).ToList();
+            directories.Sort();
+            directories.Reverse();
+
+            foreach (var directory in directories)
+            {
+                Directory.Delete(directory);
+            }
+
+            Directory.Delete(directoryPath);
+        }
+
         public static void CreateOrUpdateFile(string contents, string path, bool useSourceControl = true)
         {
             CreateOrUpdateFile(contents, path, useSourceControl, EditorSettings.lineEndingsForNewScripts);
