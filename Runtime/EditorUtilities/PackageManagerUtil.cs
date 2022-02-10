@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // <copyright file="PackageManagerUtil.cs" company="Lost Signal LLC">
 //     Copyright (c) Lost Signal LLC. All rights reserved.
 // </copyright>
@@ -9,6 +9,7 @@
 namespace Lost
 {
     using System.Collections.Generic;
+    using System.IO;
     using UnityEditor;
     using UnityEditor.PackageManager;
     using UnityEditor.PackageManager.Requests;
@@ -29,6 +30,23 @@ namespace Lost
                 isProcessing = true;
                 EditorApplication.update += ProcessList;
             }
+        }
+
+        public static void AddGitPackage(string id, string gitUrl)
+        {
+            var manifestPath = "./Packages/manifest.json";
+            var manifestText = File.ReadAllText(manifestPath);
+
+            if (manifestText.Contains($"\"{id}\""))
+            {
+                return;
+            }
+
+            int dependenciesIndex = manifestText.IndexOf("dependencies");
+            int leftBracketIndex = manifestText.IndexOf("{", dependenciesIndex);
+
+            manifestText = manifestText.Insert(leftBracketIndex + 1, $"\n    \"{id}\": \"{gitUrl}\",\n");
+            File.WriteAllText(manifestPath, manifestText);
         }
 
         private static void ProcessList()

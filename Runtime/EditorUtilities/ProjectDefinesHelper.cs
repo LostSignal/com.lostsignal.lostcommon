@@ -11,10 +11,10 @@
 namespace Lost
 {
     using System;
+    using System.Linq;
     using System.Collections.Generic;
 
     #if UNITY_EDITOR
-    using System.Linq;
     using UnityEditor;
     #endif
 
@@ -37,7 +37,59 @@ namespace Lost
             26, // Facebook
         };
 
+        public static void AddOrRemoveDefine(string assemblyName, string define)
+        {
+            bool typeExists = AppDomain.CurrentDomain.GetAssemblies().Any(assembly =>
+            {
+                int endIndex = assembly.FullName.IndexOf(", Version=");
+                return assembly.FullName.Substring(0, endIndex) == assemblyName;
+            });
+
+            if (typeExists)
+            {
+                ProjectDefinesHelper.AddDefineToProject(define);
+            }
+            else
+            {
+                ProjectDefinesHelper.RemoveDefineFromProject(define);
+            }
+        }
+
         public static void AddDefineToProject(string defineToAdd)
+        {
+            #if UNITY_EDITOR
+
+            var buildTargetGroups = (BuildTargetGroup[])Enum.GetValues(typeof(BuildTargetGroup));
+
+            foreach (var buildTargetGroup in buildTargetGroups)
+            {
+                if (BuildTargetsToIgnore.Contains((int)buildTargetGroup))
+                {
+                    continue;
+                }
+
+                string currentDefinesString = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
+                string newDefinesString = GetNewDefinesString(buildTargetGroup);
+
+                if (currentDefinesString != newDefinesString)
+                {
+                    PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargetGroup, newDefinesString);
+                }
+            }
+
+            EditorUtil.SaveProject();
+
+            string GetNewDefinesString(BuildTargetGroup buildTargetGroup)
+            {
+                var defines = GetBuildTargetDefines(buildTargetGroup);
+                defines.AddIfUnique(defineToAdd);
+                return string.Join(";", defines);
+            }
+
+            #endif
+        }
+
+        public static void RemoveDefineFromProject(string defineToRemove)
         {
             #if UNITY_EDITOR
 
@@ -64,20 +116,22 @@ namespace Lost
             string GetNewDefinesString(BuildTargetGroup buildTargetGroup)
             {
                 var defines = GetBuildTargetDefines(buildTargetGroup);
-                defines.AddIfUnique(defineToAdd);
-                return string.Join(";", defines);
+                defines.Remove(defineToRemove);
+
+                return defines.Count == 0 ? string.Empty :
+                       defines.Count == 1 ? defines[0] :
+                       string.Join(";", defines);
             }
 
             #endif
         }
 
-        public static List<string> GetBuildTargetDefines(BuildTargetGroup buildTargetGroup)
-        {
-            var result = new List<string>();
+        #if UNITY_EDITOR
 
-            #if UNITY_EDITOR
-            
+        private static List<string> GetBuildTargetDefines(BuildTargetGroup buildTargetGroup)
+        {
             var currentDefinesString = PlayerSettings.GetScriptingDefineSymbolsForGroup(buildTargetGroup);
+            var result = new List<string>();
 
             if (string.IsNullOrWhiteSpace(currentDefinesString))
             {
@@ -95,10 +149,10 @@ namespace Lost
                     .Select(x => x.Trim()));
             }
 
-            #endif
-
             return result;
         }
+
+        #endif
     }
 }
 
