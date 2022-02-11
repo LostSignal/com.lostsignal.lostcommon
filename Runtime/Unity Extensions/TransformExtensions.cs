@@ -123,6 +123,20 @@ namespace Lost
                 GetChildrenRecursively(child, results);
             }
         }
+
+        public static Transform FindOrCreateChild(this Transform transform, string childName, params System.Type[] types)
+        {
+            var child = transform.Find(childName);
+
+            if (child == null)
+            {
+                child = new GameObject(childName, types).transform;
+                child.SetParent(transform);
+                child.Reset();
+            }
+
+            return child;
+        }
     }
 }
 
