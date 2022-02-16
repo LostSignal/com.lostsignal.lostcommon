@@ -8,6 +8,7 @@
 
 namespace Lost
 {
+    using System.Runtime.CompilerServices;
     using UnityEngine;
 
     public class CoroutineRunner : MonoBehaviour
@@ -16,13 +17,12 @@ namespace Lost
 
         public static CoroutineRunner Instance
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 if (instance == null)
                 {
-                    var newGameObject = new GameObject("CoroutineRunner", typeof(CoroutineRunner));
-                    DontDestroyOnLoad(newGameObject);
-                    instance = newGameObject.GetComponent<CoroutineRunner>();
+                    instance = SingletonUtil.CreateSingleton<CoroutineRunner>("Coroutine Runner");
                 }
 
                 return instance;
