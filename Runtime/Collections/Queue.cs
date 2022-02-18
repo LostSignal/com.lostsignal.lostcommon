@@ -76,11 +76,13 @@ namespace Lost
             return value;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T GetElementAt(int index)
         {
             return this.elements[index];
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void DeleteElementAt(int index)
         {
             this.elements[index] = DefaultElement;

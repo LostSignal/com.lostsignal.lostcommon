@@ -6,11 +6,54 @@
 
 namespace Lost
 {
-    // public class LevelManager : MonoBehaviour
-    // {
+    using System.Collections.Generic;
+    using System.Runtime.CompilerServices;
+    using UnityEngine;
+
+    public class LevelManager : MonoBehaviour
+    {
+        private static LevelManager instance;
+
+        private List<ILevelLoadPreprocessor> preprocessors = new List<ILevelLoadPreprocessor>();
+        private List<ILevelLoadPostprocessor> postprocessors = new List<ILevelLoadPostprocessor>();
+
+        public static LevelManager Instance
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                if (instance == null)
+                {
+                    instance = SingletonUtil.CreateSingleton<LevelManager>("Level Manager");
+                }
+
+                return instance;
+            }
+        }
+
+        public void AddLevelLoadPreprocessor(ILevelLoadPreprocessor preprocessor)
+        {
+            this.preprocessors.Add(preprocessor);
+        }
+
+        public void AddLevelLoadPostprocessor(ILevelLoadPostprocessor postprocessor)
+        {
+            this.postprocessors.Add(postprocessor);
+        }
+
+        public void RemoveLevelLoadPreprocessor(ILevelLoadPreprocessor preprocessor)
+        {
+            this.preprocessors.Remove(preprocessor);
+        }
+
+        public void RemoveLevelLoadPostprocessor(ILevelLoadPostprocessor postprocessor)
+        {
+            this.postprocessors.Remove(postprocessor);
+        }
+
         /*
         * Make ActivationManager
-          * Scans the entier scene for components with IAwake and IStart and process 
+          * Scans the entier scene for components with IAwake and IStart and process
 
         * FadeInOutManager
 
@@ -119,5 +162,6 @@ namespace Lost
         ////
         //// Level Load Finish
         ////   ??? (AI Start?)
-    // }
+        // }
+    }
 }

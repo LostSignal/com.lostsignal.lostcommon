@@ -15,6 +15,11 @@ namespace Lost
         public static T CreateSingleton<T>(string name)
             where T : MonoBehaviour
         {
+            if (Platform.IsApplicationQuitting)
+            {
+                return null;
+            }
+
             if (rootInstance == null)
             {
                 rootInstance = new GameObject("Lost Singletons");
