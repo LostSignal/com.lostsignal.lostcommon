@@ -16,6 +16,7 @@ namespace Lost
         Box,
     }
 
+    [Serializable]
     public struct Area
     {
         public AreaType Type;

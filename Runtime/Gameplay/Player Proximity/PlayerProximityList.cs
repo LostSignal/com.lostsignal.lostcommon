@@ -13,15 +13,22 @@ namespace Lost
 
     public sealed class PlayerProximityList : ProcessList<PlayerProximityItem>
     {
+        private Transform mainCameraTransform;
         private Vector3 playerPosition;
 
-        public PlayerProximityList(string name, int capacity) : base(name, capacity)
+        public PlayerProximityList(string name, int capacity)
+            : base(name, capacity)
         {
         }
 
         protected override void OnBeforeProcess()
         {
-            this.playerPosition = Vector3.zero; // Get this value from the Actor class
+            if (this.mainCameraTransform == null)
+            {
+                this.mainCameraTransform = Camera.main.transform;
+            }
+
+            this.playerPosition = this.mainCameraTransform.position; // Get this value from the Actor class
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -36,8 +43,17 @@ namespace Lost
 
             if (item.IsInProximity != isInside)
             {
+                //// TODO [bgish]: Set the new state, or queue it up?
                 item.IsInProximity = isInside;
-                // TODO [bgish]: Set the new state, or queue it up?
+
+                if (isInside)
+                {
+                    item.PlayerProximity.SetInside();
+                }
+                else
+                {
+                    item.PlayerProximity.SetOutside();
+                }
             }
         }
     }

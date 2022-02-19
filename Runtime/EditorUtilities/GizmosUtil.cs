@@ -12,17 +12,21 @@ namespace Lost
 
     public static class GizmosUtil
     {
-        public static void DrawWireCube(Transform transform)
+        public static void DrawWireCube(Transform transform, Vector3 size)
         {
-            Vector3 top1 = transform.localToWorldMatrix.MultiplyPoint(new Vector3(+0.5f, 0.5f, +0.5f));
-            Vector3 top2 = transform.localToWorldMatrix.MultiplyPoint(new Vector3(+0.5f, 0.5f, -0.5f));
-            Vector3 top3 = transform.localToWorldMatrix.MultiplyPoint(new Vector3(-0.5f, 0.5f, -0.5f));
-            Vector3 top4 = transform.localToWorldMatrix.MultiplyPoint(new Vector3(-0.5f, 0.5f, +0.5f));
+            float halfX = size.x / 2.0f;
+            float halfY = size.y / 2.0f;
+            float halfZ = size.z / 2.0f;
 
-            Vector3 bottom1 = transform.localToWorldMatrix.MultiplyPoint(new Vector3(+0.5f, -0.5f, +0.5f));
-            Vector3 bottom2 = transform.localToWorldMatrix.MultiplyPoint(new Vector3(+0.5f, -0.5f, -0.5f));
-            Vector3 bottom3 = transform.localToWorldMatrix.MultiplyPoint(new Vector3(-0.5f, -0.5f, -0.5f));
-            Vector3 bottom4 = transform.localToWorldMatrix.MultiplyPoint(new Vector3(-0.5f, -0.5f, +0.5f));
+            Vector3 top1 = transform.localToWorldMatrix.MultiplyPoint(new Vector3(+halfX, halfY, +halfZ));
+            Vector3 top2 = transform.localToWorldMatrix.MultiplyPoint(new Vector3(+halfX, halfY, -halfZ));
+            Vector3 top3 = transform.localToWorldMatrix.MultiplyPoint(new Vector3(-halfX, halfY, -halfZ));
+            Vector3 top4 = transform.localToWorldMatrix.MultiplyPoint(new Vector3(-halfX, halfY, +halfZ));
+
+            Vector3 bottom1 = transform.localToWorldMatrix.MultiplyPoint(new Vector3(+halfX, -halfY, +halfZ));
+            Vector3 bottom2 = transform.localToWorldMatrix.MultiplyPoint(new Vector3(+halfX, -halfY, -halfZ));
+            Vector3 bottom3 = transform.localToWorldMatrix.MultiplyPoint(new Vector3(-halfX, -halfY, -halfZ));
+            Vector3 bottom4 = transform.localToWorldMatrix.MultiplyPoint(new Vector3(-halfX, -halfY, +halfZ));
 
             Gizmos.DrawLine(top1, top2);
             Gizmos.DrawLine(top2, top3);
@@ -40,23 +44,25 @@ namespace Lost
             Gizmos.DrawLine(bottom4, top4);
         }
 
-        public static void DrawWireCylinder(Transform transform, int segments = 25)
+        public static void DrawWireCylinder(Transform transform, float radius, float height, int segments = 25)
         {
-            Vector3 centerTop = transform.localToWorldMatrix.MultiplyPoint(new Vector3(0, 0.5f, 0));
-            Vector3 centerBottom = transform.localToWorldMatrix.MultiplyPoint(new Vector3(0, -0.5f, 0));
+            float halfHeight = height / 2.0f;
+
+            Vector3 centerTop = transform.localToWorldMatrix.MultiplyPoint(new Vector3(0, halfHeight, 0));
+            Vector3 centerBottom = transform.localToWorldMatrix.MultiplyPoint(new Vector3(0, -halfHeight, 0));
 
             for (int i = 0; i < segments; i++)
             {
                 float point1Theta = (360.0f / (float)segments) * i;
-                Vector3 point1 = Quaternion.Euler(0, point1Theta, 0) * new Vector3(0.5f, 0, 0);
+                Vector3 point1 = Quaternion.Euler(0, point1Theta, 0) * new Vector3(radius, 0, 0);
 
                 float point2Theta = (360.0f / (float)segments) * ((i + 1) % segments);
-                Vector3 point2 = Quaternion.Euler(0, point2Theta, 0) * new Vector3(0.5f, 0, 0);
+                Vector3 point2 = Quaternion.Euler(0, point2Theta, 0) * new Vector3(radius, 0, 0);
 
-                Vector3 topP1 = transform.localToWorldMatrix.MultiplyPoint(point1 + new Vector3(0, 0.5f, 0));
-                Vector3 topP2 = transform.localToWorldMatrix.MultiplyPoint(point2 + new Vector3(0, 0.5f, 0));
-                Vector3 bottomP1 = transform.localToWorldMatrix.MultiplyPoint(point1 + new Vector3(0, -0.5f, 0));
-                Vector3 bottomP2 = transform.localToWorldMatrix.MultiplyPoint(point2 + new Vector3(0, -0.5f, 0));
+                Vector3 topP1 = transform.localToWorldMatrix.MultiplyPoint(point1 + new Vector3(0, halfHeight, 0));
+                Vector3 topP2 = transform.localToWorldMatrix.MultiplyPoint(point2 + new Vector3(0, halfHeight, 0));
+                Vector3 bottomP1 = transform.localToWorldMatrix.MultiplyPoint(point1 + new Vector3(0, -halfHeight, 0));
+                Vector3 bottomP2 = transform.localToWorldMatrix.MultiplyPoint(point2 + new Vector3(0, -halfHeight, 0));
 
                 Gizmos.DrawLine(topP1, topP2);
                 Gizmos.DrawLine(bottomP1, bottomP2);

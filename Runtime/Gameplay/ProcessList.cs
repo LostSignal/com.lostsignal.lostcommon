@@ -10,12 +10,11 @@ namespace Lost
 {
     using System;
     using System.Collections.Generic;
-    using System.Runtime.CompilerServices;
     using UnityEngine;
 
     public abstract class ProcessList<T>
     {
-        private Dictionary<int, int> idToIndexMap = new Dictionary<int, int>();
+        private Dictionary<int, int> idToIndexMap;
         private T[] items;
         private int[] ids;
         private UnityEngine.Object[] contexts;
@@ -32,6 +31,7 @@ namespace Lost
             this.items = new T[capacity];
             this.ids = new int[capacity];
             this.contexts = new UnityEngine.Object[capacity];
+            this.idToIndexMap = new Dictionary<int, int>(capacity);
         }
 
         public void Add(int id, T item, UnityEngine.Object context)
@@ -40,9 +40,9 @@ namespace Lost
 
             if (index == this.items.Length)
             {
-                Array.Resize(ref this.items, items.Length * 2);
-                Array.Resize(ref this.ids, items.Length * 2);
-                Array.Resize(ref this.contexts, items.Length * 2);
+                Array.Resize(ref this.items, this.items.Length * 2);
+                Array.Resize(ref this.ids, this.items.Length * 2);
+                Array.Resize(ref this.contexts, this.items.Length * 2);
                 Debug.LogWarning($"{this.name} has to grow in capacity!");
             }
 
@@ -77,15 +77,11 @@ namespace Lost
             this.count--;
         }
 
-        protected abstract void OnBeforeProcess();
-        
-        protected abstract void Process(ref T item);
-
         public void RunAll(double maxRuntime = 1000.0)
         {
             this.Run(this.count, maxRuntime);
         }
-        
+
         public void RunAllOverXSeconds(float deltaTime, float seconds)
         {
             if (deltaTime == 0.0f)
@@ -97,7 +93,7 @@ namespace Lost
             double elementsPerFrame = (this.count / framesPerSecond) / seconds;
             this.elementsToProcess += elementsPerFrame;
 
-            int elementsToProcessInteger = (int)elementsToProcess;
+            int elementsToProcessInteger = (int)this.elementsToProcess;
 
             if (elementsToProcessInteger > 0)
             {
@@ -106,8 +102,14 @@ namespace Lost
             }
         }
 
+        protected abstract void OnBeforeProcess();
+
+        protected abstract void Process(ref T item);
+
         private void Run(int maxElements, double maxRuntimeInSeconds)
         {
+            this.OnBeforeProcess();
+
             double endTimeInSeconds = Time.realtimeSinceStartupAsDouble + maxRuntimeInSeconds;
             maxElements = Math.Min(maxElements, this.count);
 

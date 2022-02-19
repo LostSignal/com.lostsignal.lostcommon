@@ -31,7 +31,7 @@ namespace Lost
 
         public void Register(PlayerProximity playerProximity)
         {
-            Transform playerProximityTransform = playerProximity.transform;
+            Transform playerProximityTransform = playerProximity.ProximityTransform;
 
             this.playerProximityList.Add(
                 playerProximity.GetInstanceID(), 
@@ -43,7 +43,7 @@ namespace Lost
                     PlayerProximity = playerProximity,
                     Transform = playerProximityTransform,
                     IsInProximity = false,
-                }, 
+                },
                 playerProximity);
         }
 

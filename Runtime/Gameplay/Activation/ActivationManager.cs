@@ -15,6 +15,11 @@ namespace Lost
     {
         private static ActivationManager instance;
         private static bool isInitialized;
+        private static bool isProcessing;
+
+        #pragma warning disable 0649
+        [SerializeField] private double maxActivationTimeInMillis = 0.1;
+        #pragma warning restore 0649
 
         private Queue<MonoBehaviour> monoBehaviours = new Queue<MonoBehaviour>(1000);
         private Queue<IAwake> awakes = new Queue<IAwake>(1000);
@@ -28,13 +33,12 @@ namespace Lost
         private List<ILateUpdate> runningLateUpdates = new List<ILateUpdate>(100);
         private List<IFixedUpdate> runningFixedUpdates = new List<IFixedUpdate>(100);
 
-        private bool isProcessing;
-
-        public bool IsProcessing => this.isProcessing;
+        public bool IsProcessing => isProcessing;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Register(MonoBehaviour monoBehaviour)
         {
+            isProcessing = true;
             (isInitialized ? instance : Initialize()).monoBehaviours.Enqueue(monoBehaviour);
         }
 
@@ -71,7 +75,10 @@ namespace Lost
         {
             //// TODO [bgish]: If ManagersReady == false, early out
 
-            this.ProcessActivationRequests();
+            if (isProcessing)
+            {
+                this.ProcessActivationRequests();
+            }
 
             float deltaTime = Time.deltaTime;
 
@@ -115,16 +122,14 @@ namespace Lost
 
         private void ProcessActivationRequests()
         {
-            this.isProcessing = true;
-
             //// TODO [bgish]: Need to handle any exception being thrown
 
             var startTime = Time.realtimeSinceStartupAsDouble;
+            var endTime = startTime + (this.maxActivationTimeInMillis / 1000.0);
+            var currentTime = startTime;
 
-            while (Time.realtimeSinceStartupAsDouble - startTime < 0.001)
+            while (currentTime < endTime)
             {
-                Debug.Log(Time.realtimeSinceStartupAsDouble - startTime);
-
                 if (this.monoBehaviours.Count > 0)
                 {
                     ProcessMonobehaviours();
@@ -176,8 +181,11 @@ namespace Lost
                 }
                 else
                 {
-                    this.isProcessing = false;
+                    isProcessing = false;
+                    break;
                 }
+
+                currentTime = Time.realtimeSinceStartupAsDouble;
             }
 
             void ProcessMonobehaviours()

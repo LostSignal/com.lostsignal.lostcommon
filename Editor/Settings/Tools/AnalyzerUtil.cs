@@ -55,7 +55,10 @@ namespace Lost
             {
                 for (int i = 0; i < analyzer.DLLs.Count; i++)
                 {
-                    analyzers.Add(CreateDLL(analyzer.DLLs[i]));
+                    if (analyzer.DLLs[i] != null)
+                    {
+                        analyzers.Add(CreateDLL(analyzer.DLLs[i]));
+                    }
                 }
             }
 
