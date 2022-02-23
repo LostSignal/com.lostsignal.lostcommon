@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // <copyright file="Queue.cs" company="Lost Signal LLC">
 //     Copyright (c) Lost Signal LLC. All rights reserved.
 // </copyright>
@@ -43,6 +43,21 @@ namespace Lost
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => this.count == 0;
+        }
+
+        public int EnqueueFront(T element)
+        {
+            if (this.Count == this.capacity)
+            {
+                this.Grow();
+                this.grow?.Invoke();
+            }
+
+            this.startIndex = this.startIndex == 0 ? this.capacity - 1 : this.startIndex - 1;
+            this.elements[this.startIndex] = element;
+            this.count++;
+
+            return this.startIndex;
         }
 
         public int Enqueue(T element)
