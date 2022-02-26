@@ -1,20 +1,14 @@
 //-----------------------------------------------------------------------
-// <copyright file="CoroutineRunner.cs" company="Lost Signal LLC">
+// <copyright file="FadeManager.cs" company="Lost Signal LLC">
 //     Copyright (c) Lost Signal LLC. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
 
-#if UNITY
-
 namespace Lost
 {
-    using System.Runtime.CompilerServices;
     using UnityEngine;
 
-    public sealed class CoroutineRunner : SingletonMonoBehaviour<CoroutineRunner>, IName
+    public class FadeManager : MonoBehaviour
     {
-        string IName.Name => "Coroutine Runner";
     }
 }
-
-#endif
