@@ -1,7 +1,10 @@
 {
     "name": "LostCommon",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "GUID:e40ba710768534012815d3193fa296cb",
+        "GUID:6055be8ebefd69e48b49212b09b47b2f"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
@@ -19,6 +22,16 @@
             "name": "com.unity.nuget.newtonsoft-json",
             "expression": "0.0.0",
             "define": "USING_NEWTONSOFT"
+        },
+        {
+            "name": "com.unity.xr.management",
+            "expression": "0.0.0",
+            "define": "USING_UNITY_XR_MANAGEMENT"
+        },
+        {
+            "name": "com.unity.textmeshpro",
+            "expression": "0.0.0",
+            "define": "USING_TEXT_MESH_PRO"
         }
     ],
     "noEngineReferences": false
