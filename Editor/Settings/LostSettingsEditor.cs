@@ -58,6 +58,9 @@ namespace Lost
         // GUID Fixer
         private SerializedProperty guidFixerSettings;
 
+        // Shader Stripper
+        private SerializedProperty shaderStripperSettings;
+
         public override void OnInspectorGUI()
         {
             this.UpdateSerializedProperties();
@@ -73,6 +76,7 @@ namespace Lost
                 this.DrawEditorConfig(currentFoldoutId++);
                 this.DrawOverrideTemplateFiles(currentFoldoutId++);
                 this.DrawAnalyzers(currentFoldoutId++);
+                this.DrawShaderStripperSettings(currentFoldoutId++);
 
                 //// NOTE [bgish]: This tool hasn't been created yet
                 //// this.DrawGuidFixerSettings(currentFoldoutId++);
@@ -178,6 +182,9 @@ namespace Lost
 
             // GUID Fixer
             this.guidFixerSettings = this.lostLibrarySerializedObject.FindProperty("guidFixerSettings");
+
+            // Shader Stripper
+            this.shaderStripperSettings = this.lostLibrarySerializedObject.FindProperty("shaderStripperSettings");
         }
 
         private void DrawProjectSettingsProxies()
@@ -346,6 +353,22 @@ namespace Lost
                 using (new IndentLevelScope(2))
                 {
                     EditorGUILayout.PropertyField(this.guidFixerSettings);
+                }
+            }
+        }
+
+        private void DrawShaderStripperSettings(int foldoutId)
+        {
+            using (new FoldoutScope(foldoutId, "Shader Stripper", out bool visible))
+            {
+                if (visible == false)
+                {
+                    return;
+                }
+
+                using (new IndentLevelScope(2))
+                {
+                    EditorGUILayout.PropertyField(this.shaderStripperSettings);
                 }
             }
         }
