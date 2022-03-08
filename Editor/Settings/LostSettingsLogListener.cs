@@ -21,9 +21,7 @@ namespace Lost
 
         private static void OnLogMessageReceived(string condition, string stackTrace, LogType type)
         {
-            if (Application.isPlaying == false &&
-                LostSettings.Instance.AutomaticallyFixLineEndingMismatches &&
-                condition.StartsWith("There are inconsistent line endings in the"))
+            if (LostSettings.Instance.AutomaticallyFixLineEndingMismatches && condition.StartsWith("There are inconsistent line endings in the"))
             {
                 FixFile(condition);
             }
