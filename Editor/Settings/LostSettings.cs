@@ -22,6 +22,7 @@ namespace Lost
         private static LostSettings instance;
 
         #pragma warning disable 0649
+
         // Line Endings
         [SerializeField] private LineEndings projectLineEndings;
         [SerializeField] private bool automaticallyFixLineEndingMismatches;
@@ -60,6 +61,9 @@ namespace Lost
         // Tools
         [SerializeField] private List<Analyzer> analyzers;
         [SerializeField] private GuidFixerSettings guidFixerSettings;
+
+        // Shader Stripping
+        [SerializeField] private LostShaderVariantStripperSettings shaderStripperSettings;
         #pragma warning restore 0649
 
         static LostSettings()
@@ -98,6 +102,8 @@ namespace Lost
         public List<Analyzer> Analyzers => this.analyzers;
 
         public GuidFixerSettings GuidFixerSettings => this.guidFixerSettings;
+
+        public LostShaderVariantStripperSettings ShaderStripperSettings => this.shaderStripperSettings;
 
         public bool AutomaticallyFixLineEndingMismatches => this.automaticallyFixLineEndingMismatches;
 
@@ -204,6 +210,9 @@ namespace Lost
 
             // GUID Fixer
             this.guidFixerSettings = new GuidFixerSettings();
+
+            // Shader Stripper
+            this.shaderStripperSettings = new LostShaderVariantStripperSettings();
         }
 
         public void OverrideCSharpTemplateFiles(string assetPath)
