@@ -9,64 +9,42 @@
 namespace Lost.XR
 {
     using System.Collections.Generic;
+    using System.Runtime.CompilerServices;
     using System.Text;
     using UnityEngine;
     using UnityEngine.XR;
-    using System.Runtime.CompilerServices;
-
-    public struct Button
-    {
-        private bool isPressed;
-        private bool wasPressedThisFrame;
-        private bool wasReleasedThisFrame;
-        private float pressedTime;
-
-        public bool IsPressed
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => this.isPressed;
-        }
-
-        public bool WasPressedThisFrame
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => this.wasPressedThisFrame;
-        }
-
-        public bool WasReleasedThisFrame
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => this.wasReleasedThisFrame;
-        }
-
-        public float PressedTime
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => this.pressedTime;
-        }
-
-        public static Button Update(bool currentIsPressed, float currentPressedTime, bool newIsPressed, float deltaTime)
-        {
-            if (newIsPressed)
-            {
-                return currentIsPressed ?
-                    new Button { isPressed = true, pressedTime = currentPressedTime + deltaTime } :
-                    new Button { isPressed = true, wasPressedThisFrame = true };
-            }
-            else
-            {
-                return currentIsPressed == false ?
-                    new Button { isPressed = false } :
-                    new Button { isPressed = false, wasReleasedThisFrame = true };
-            }
-        }
-    }
 
     public class XRControllersState
     {
         private static readonly StringBuilder StringBuilderCache = new StringBuilder();
         private static readonly List<InputDevice> InputDevicesList = new List<InputDevice>();
         private static readonly InputDeviceCharacteristics ControllerCharacteristics = InputDeviceCharacteristics.Controller | InputDeviceCharacteristics.HeldInHand;
+        private static readonly XRControllersState ControllersState = new XRControllersState();
+
+        // Left Hand
+        private bool isLeftControllerConnected;
+        private float leftTrigger;
+        private float leftGrip;
+        private Vector2 leftStick;
+        private Button leftStickClick;
+        private Button leftPrimaryButtion;
+        private Button leftSecondaryButton;
+        private Button menu;
+        private Vector3 leftPosition;
+        private Quaternion leftRotation;
+
+        // Right Hand
+        private bool isRightControllerConnected;
+        private float rightTrigger;
+        private float rightGrip;
+        private Vector2 rightStick;
+        private Button rightStickClick;
+        private Button rightPrimaryButton;
+        private Button rightSecondaryButton;
+        private Vector3 rightPosition;
+        private Quaternion rightRotation;
+
+        private int lastUpdatedFrame = -1;
 
         public XRControllersState()
         {
@@ -84,26 +62,11 @@ namespace Lost.XR
             }
         }
 
-        // Left Hand
-        private bool isLeftControllerConnected;
-        private float leftTrigger;
-        private float leftGrip;
-        private Vector2 leftStick;
-        private Button leftStickClick;
-        private Button leftPrimaryButtion;
-        private Button leftSecondaryButton;
-        private Button menu;
-
-        // Right Hand
-        private bool isRightControllerConnected;
-        private float rightTrigger;
-        private float rightGrip;
-        private Vector2 rightStick;
-        private Button rightStickClick;
-        private Button rightPrimaryButton;
-        private Button rightSecondaryButton;
-
-        private int lastUpdatedFrame = -1;
+        public static XRControllersState Instance
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => ControllersState;
+        }
 
         public bool IsLeftControllerConnected
         {
@@ -140,10 +103,23 @@ namespace Lost.XR
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => this.leftPrimaryButtion;
         }
+
         public Button LeftSecondaryButton
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => this.leftSecondaryButton;
+        }
+
+        public Vector3 LeftPosition
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => this.leftPosition;
+        }
+
+        public Quaternion LeftRotation
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => this.leftRotation;
         }
 
         public Button Menu
@@ -152,46 +128,58 @@ namespace Lost.XR
             get => this.menu;
         }
 
-        private bool IsRightControllerConnected
+        public bool IsRightControllerConnected
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => this.isRightControllerConnected;
         }
 
-        private float RightTrigger
+        public float RightTrigger
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => this.rightTrigger;
         }
 
-        private float RightGrip
+        public float RightGrip
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => this.rightGrip;
         }
 
-        private Vector2 RightStick
+        public Vector2 RightStick
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => this.rightStick;
         }
 
-        private Button RightStickClick
+        public Button RightStickClick
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => this.rightStickClick;
         }
 
-        private Button RightPrimaryButton
+        public Button RightPrimaryButton
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => this.rightPrimaryButton;
         }
 
-        private Button RightSecondaryButton
+        public Button RightSecondaryButton
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get => this.rightSecondaryButton;
+        }
+
+        public Vector3 RightPosition
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => this.rightPosition;
+        }
+
+        public Quaternion RightRotation
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => this.rightRotation;
         }
 
         public void UpdateValues()
@@ -220,6 +208,8 @@ namespace Lost.XR
                     device.TryGetFeatureValue(CommonUsages.primaryButton, out bool primaryButton);
                     device.TryGetFeatureValue(CommonUsages.secondaryButton, out bool secondaryButton);
                     device.TryGetFeatureValue(CommonUsages.menuButton, out bool menuButton);
+                    device.TryGetFeatureValue(CommonUsages.devicePosition, out Vector3 position);
+                    device.TryGetFeatureValue(CommonUsages.deviceRotation, out Quaternion rotation);
 
                     if ((device.characteristics & InputDeviceCharacteristics.Left) > 0)
                     {
@@ -230,6 +220,8 @@ namespace Lost.XR
                         this.leftStickClick = Button.Update(this.leftStickClick.IsPressed, this.leftStickClick.PressedTime, primary2DAxisClick, deltaTime);
                         this.leftPrimaryButtion = Button.Update(this.leftPrimaryButtion.IsPressed, this.leftPrimaryButtion.PressedTime, primaryButton, deltaTime);
                         this.leftSecondaryButton = Button.Update(this.leftSecondaryButton.IsPressed, this.leftSecondaryButton.PressedTime, secondaryButton, deltaTime);
+                        this.leftPosition = position;
+                        this.leftRotation = rotation;
                         this.menu = Button.Update(this.menu.IsPressed, this.menu.PressedTime, menuButton, deltaTime);
                     }
                     else if ((device.characteristics & InputDeviceCharacteristics.Right) > 0)
@@ -241,6 +233,8 @@ namespace Lost.XR
                         this.rightStickClick = Button.Update(this.rightStickClick.IsPressed, this.rightStickClick.PressedTime, primary2DAxisClick, deltaTime);
                         this.rightPrimaryButton = Button.Update(this.rightPrimaryButton.IsPressed, this.rightPrimaryButton.PressedTime, primaryButton, deltaTime);
                         this.rightSecondaryButton = Button.Update(this.rightSecondaryButton.IsPressed, this.rightSecondaryButton.PressedTime, secondaryButton, deltaTime);
+                        this.rightPosition = position;
+                        this.rightRotation = rotation;
                     }
                 }
             }
@@ -254,14 +248,14 @@ namespace Lost.XR
             StringBuilderCache.Append($" Trigger = {this.leftTrigger:0.00},");
             StringBuilderCache.Append($" Grip = {this.leftGrip:0.00},");
             StringBuilderCache.Append($" Stick = {this.leftStick},");
-            StringBuilderCache.Append($" Stick Click = {this.leftStickClick},");
+            StringBuilderCache.Append($" Stick Click = {this.leftStickClick.IsPressed},");
             StringBuilderCache.AppendLine();
 
             StringBuilderCache.Append($"Right: Connected = {this.isRightControllerConnected},");
             StringBuilderCache.Append($" Trigger = {this.rightTrigger:0.00},");
             StringBuilderCache.Append($" Grip = {this.rightGrip:0.00},");
             StringBuilderCache.Append($" Stick = {this.rightStick},");
-            StringBuilderCache.Append($" Stick Click = {this.rightStickClick},");
+            StringBuilderCache.Append($" Stick Click = {this.rightStickClick.IsPressed},");
             StringBuilderCache.AppendLine();
 
             StringBuilderCache.Append($" A = {this.rightPrimaryButton.IsPressed},");
@@ -272,7 +266,6 @@ namespace Lost.XR
 
             return StringBuilderCache;
         }
-
 
         /* ------ HAPTICS ------
         List<UnityEngine.XR.InputDevice> devices = new List<UnityEngine.XR.InputDevice>(); 

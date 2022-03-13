@@ -86,10 +86,28 @@ namespace Lost.XR
                     }
                 }
             }
+        }
 
+        private void OnEnable()
+        {
             if (this.initializeAtStartup)
             {
+                this.initializeAtStartup = false;
                 this.Initialize();
+            }
+        }
+
+        private void OnDisable()
+        {
+            this.Shutdown();
+        }
+
+        [EditorEvents.OnExitingPlayMode]
+        private void Shutdown()
+        {
+            if (XRGeneralSettings.Instance && XRGeneralSettings.Instance.Manager && XRGeneralSettings.Instance.Manager.isInitializationComplete && XRGeneralSettings.Instance.Manager.activeLoader != null)
+            {
+                XRGeneralSettings.Instance.Manager.DeinitializeLoader();
             }
         }
 
@@ -165,7 +183,7 @@ namespace Lost.XR
                 this.ToggleVR();
             }
         }
-        
+
         #endif
 
         private async void Initialize(bool forceFlatMode)
@@ -175,6 +193,11 @@ namespace Lost.XR
 
             if (xrSettingsManager.activeLoader != null)
             {
+                while (xrSettingsManager.isInitializationComplete == false)
+                {
+                    await Task.Yield();
+                }
+
                 xrSettingsManager.DeinitializeLoader();
             }
 
@@ -232,7 +255,7 @@ namespace Lost.XR
             }
 
             this.currentDevice = xrDevice;
-        
+
             // Setting target framerate on mobile
             if (this.setTargetFramerateOnMobileAR && this.currentDevice.XRType == XRType.ARHanheld)
             {
@@ -393,7 +416,11 @@ namespace Lost.XR
                     {
                         if (xrSettingsManager.activeLoader.Start())
                         {
+                            // Need to wait a few ticks so the headsets can be recognized by the XR system
                             await Task.Yield();
+                            await Task.Yield();
+                            await Task.Yield();
+
                             hmdDeviceName = FindFirstConnectedHMD();
                         }
                     }

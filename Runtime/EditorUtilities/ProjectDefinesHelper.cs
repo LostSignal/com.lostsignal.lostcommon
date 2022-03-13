@@ -94,6 +94,7 @@ namespace Lost
             #if UNITY_EDITOR
 
             var buildTargetGroups = (BuildTargetGroup[])Enum.GetValues(typeof(BuildTargetGroup));
+            bool saveNeeded = false;
 
             foreach (var buildTargetGroup in buildTargetGroups)
             {
@@ -108,10 +109,15 @@ namespace Lost
                 if (currentDefinesString != newDefinesString)
                 {
                     PlayerSettings.SetScriptingDefineSymbolsForGroup(buildTargetGroup, newDefinesString);
+                    saveNeeded = true;
                 }
             }
 
-            EditorApplication.ExecuteMenuItem("File/Save Project");
+            if (saveNeeded)
+            {
+                AssetDatabase.SaveAssets();
+                EditorApplication.ExecuteMenuItem("File/Save Project");
+            }
 
             string GetNewDefinesString(BuildTargetGroup buildTargetGroup)
             {
