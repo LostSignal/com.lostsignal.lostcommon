@@ -8,6 +8,7 @@
 
 namespace Lost.XR
 {
+    using Lost;
     using System;
     using System.Collections.Generic;
     using System.Runtime.CompilerServices;
@@ -36,6 +37,14 @@ namespace Lost.XR
 
         [NonSerialized]
         private XRDevice currentDevice;
+
+        private Action onXRDeviceChange;
+
+        public event Action OnXRDeviceChange
+        {
+            add => this.onXRDeviceChange += value;
+            remove => this.onXRDeviceChange -= value;
+        }
 
         public bool IsFlatMode
         {
@@ -251,7 +260,7 @@ namespace Lost.XR
 
             if (this.currentDevice != xrDevice)
             {
-                // TODO [bgish]: Fire Event
+                this.onXRDeviceChange.SafeInvoke();
             }
 
             this.currentDevice = xrDevice;
