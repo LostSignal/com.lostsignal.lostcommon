@@ -1,4 +1,4 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // <copyright file="Data.cs" company="Lost Signal LLC">
 //     Copyright (c) Lost Signal LLC. All rights reserved.
 // </copyright>
@@ -8,7 +8,9 @@ namespace Lost
 {
     using System;
     using System.Collections.Generic;
+    using System.Runtime.CompilerServices;
 
+    [Serializable]
     public class DataStore
     {
         private const uint CurrentVersion = 1;
@@ -20,15 +22,51 @@ namespace Lost
         private Dictionary<string, int> enumData;
         private Dictionary<string, bool> boolData;
         private Dictionary<string, long> longData;
+        private Dictionary<string, float> floatData;
+        private Dictionary<string, double> doubleData;
         private Dictionary<string, string> stringData;
         private Dictionary<string, byte[]> byteArrayData;
         private Dictionary<string, DateTime> dateTimeData;
 
-        public bool IsDirty { get; private set; }
+        private bool isInitialized;
+        private bool isDirty;
+
+        private Action<string> onDataStoreKeyChanged;
+        private Action onDataStoreChanged;
+
+        public event Action<string> OnDataStoreKeyChanged
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            add => this.onDataStoreKeyChanged += value;
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            remove => this.onDataStoreKeyChanged -= value;
+        }
+
+        public event Action OnDataStoreChanged
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            add => this.onDataStoreChanged += value;
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            remove => this.onDataStoreChanged -= value;
+        }
+
+        public bool IsInitialized
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => this.isInitialized;
+        }
+
+        public bool IsDirty
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => this.isDirty;
+        }
 
         public int Serialize(byte[] saveDataBuffer)
         {
-            this.IsDirty = false;
+            this.isDirty = false;
 
             Writer.ResetBuffer(saveDataBuffer);
             Writer.WritePackedUInt32(CurrentVersion);
@@ -36,6 +74,8 @@ namespace Lost
             Writer.WritePackedUInt32(this.enumData == null ? 0 : (uint)this.enumData.Count);
             Writer.WritePackedUInt32(this.boolData == null ? 0 : (uint)this.boolData.Count);
             Writer.WritePackedUInt32(this.longData == null ? 0 : (uint)this.longData.Count);
+            Writer.WritePackedUInt32(this.floatData == null ? 0 : (uint)this.floatData.Count);
+            Writer.WritePackedUInt32(this.doubleData == null ? 0 : (uint)this.doubleData.Count);
             Writer.WritePackedUInt32(this.stringData == null ? 0 : (uint)this.stringData.Count);
             Writer.WritePackedUInt32(this.byteArrayData == null ? 0 : (uint)this.byteArrayData.Count);
             Writer.WritePackedUInt32(this.dateTimeData == null ? 0 : (uint)this.dateTimeData.Count);
@@ -76,6 +116,24 @@ namespace Lost
                 }
             }
 
+            if (this.floatData?.Count > 0)
+            {
+                foreach (var keyValuePair in this.floatData)
+                {
+                    Writer.Write(keyValuePair.Key);
+                    Writer.Write(keyValuePair.Value);
+                }
+            }
+
+            if (this.doubleData?.Count > 0)
+            {
+                foreach (var keyValuePair in this.doubleData)
+                {
+                    Writer.Write(keyValuePair.Key);
+                    Writer.Write(keyValuePair.Value);
+                }
+            }
+
             if (this.stringData?.Count > 0)
             {
                 foreach (var keyValuePair in this.stringData)
@@ -110,22 +168,17 @@ namespace Lost
 
         public void Deserialize(byte[] serializedData)
         {
-            this.IsDirty = false;
+            this.isDirty = false;
 
-            // Making sure everything is initialized
-            this.intData ??= new Dictionary<string, int>();
-            this.enumData ??= new Dictionary<string, int>();
-            this.boolData ??= new Dictionary<string, bool>();
-            this.longData ??= new Dictionary<string, long>();
-            this.stringData ??= new Dictionary<string, string>();
-            this.byteArrayData ??= new Dictionary<string, byte[]>();
-            this.dateTimeData ??= new Dictionary<string, DateTime>();
+            this.Initialize();
 
             // Make sure everything is cleared
             this.intData.Clear();
             this.enumData.Clear();
             this.boolData.Clear();
             this.longData.Clear();
+            this.floatData.Clear();
+            this.doubleData.Clear();
             this.stringData.Clear();
             this.byteArrayData.Clear();
             this.dateTimeData.Clear();
@@ -156,6 +209,10 @@ namespace Lost
 
         public void DeleteLong(string key) => this.DeleteKey(this.longData, key);
 
+        public void DeleteFloat(string key) => this.DeleteKey(this.floatData, key);
+
+        public void DeleteDouble(string key) => this.DeleteKey(this.doubleData, key);
+
         public void DeleteString(string key) => this.DeleteKey(this.stringData, key);
 
         public void DeleteByteArray(string key) => this.DeleteKey(this.byteArrayData, key);
@@ -170,6 +227,10 @@ namespace Lost
         public bool GetBool(string key, bool defaultValue = false) => this.GetKey(this.boolData, key, defaultValue);
 
         public long GetLong(string key, long defaultValue = 0) => this.GetKey(this.longData, key, defaultValue);
+
+        public float GetFloat(string key, float defaultValue = 0.0f) => this.GetKey(this.floatData, key, defaultValue);
+
+        public double GetDouble(string key, double defaultValue = 0.0) => this.GetKey(this.doubleData, key, defaultValue);
 
         public string GetString(string key, string defaultValue = null) => this.GetKey(this.stringData, key, defaultValue);
 
@@ -186,12 +247,17 @@ namespace Lost
 
         public bool HasLong(string key) => this.HasKey(this.longData, key);
 
+        public bool HasFloat(string key) => this.HasKey(this.floatData, key);
+
+        public bool HasDouble(string key) => this.HasKey(this.doubleData, key);
+
         public bool HasString(string key) => this.HasKey(this.stringData, key);
 
         public bool HasByteArray(string key) => this.HasKey(this.byteArrayData, key);
 
         public bool HasDateTime(string key) => this.HasKey(this.dateTimeData, key);
 
+        // Set
         public void SetInt(string key, int value) => this.SetValueTypeKey(ref this.intData, key, value);
 
         public void SetEnum<T>(string key, T value) => this.SetValueTypeKey(ref this.enumData, key, Convert.ToInt32(value));
@@ -199,6 +265,10 @@ namespace Lost
         public void SetBool(string key, bool value) => this.SetValueTypeKey(ref this.boolData, key, value);
 
         public void SetLong(string key, long value) => this.SetValueTypeKey(ref this.longData, key, value);
+
+        public void SetFloat(string key, float value) => this.SetValueTypeKey(ref this.floatData, key, value);
+
+        public void SetDouble(string key, double value) => this.SetValueTypeKey(ref this.doubleData, key, value);
 
         public void SetString(string key, string value) => this.SetClassTypeKey(ref this.stringData, key, value);
 
@@ -210,20 +280,17 @@ namespace Lost
         {
             if (dictionary?.Remove(key) == true)
             {
-                this.IsDirty = true;
+                this.isDirty = true;
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private T GetKey<T>(Dictionary<string, T> dictionary, string key, T defaultValue)
         {
-            if (dictionary == null)
-            {
-                return defaultValue;
-            }
-
-            return dictionary.TryGetValue(key, out T value) ? value : defaultValue;
+            return dictionary == null ? defaultValue : dictionary.TryGetValue(key, out T value) ? value : defaultValue;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool HasKey<T>(Dictionary<string, T> dictionary, string key)
         {
             return dictionary?.ContainsKey(key) ?? false;
@@ -235,7 +302,7 @@ namespace Lost
             if (dictionary == null)
             {
                 dictionary = new Dictionary<string, T>();
-                this.IsDirty = true;
+                this.isDirty = true;
             }
 
             if (dictionary.TryGetValue(key, out T currentDictionaryValue))
@@ -247,13 +314,13 @@ namespace Lost
                 else
                 {
                     dictionary[key] = value;
-                    this.IsDirty = true;
+                    this.isDirty = true;
                 }
             }
             else
             {
                 dictionary.Add(key, value);
-                this.IsDirty = true;
+                this.isDirty = true;
             }
         }
 
@@ -263,7 +330,7 @@ namespace Lost
             if (dictionary == null)
             {
                 dictionary = new Dictionary<string, T>();
-                this.IsDirty = true;
+                this.isDirty = true;
             }
 
             if (dictionary.TryGetValue(key, out T currentDictionaryValue))
@@ -279,13 +346,13 @@ namespace Lost
                 else
                 {
                     dictionary[key] = value;
-                    this.IsDirty = true;
+                    this.isDirty = true;
                 }
             }
             else
             {
                 dictionary.Add(key, value);
-                this.IsDirty = true;
+                this.isDirty = true;
             }
         }
 
@@ -295,6 +362,8 @@ namespace Lost
             uint enumCount = Reader.ReadPackedUInt32();
             uint boolCount = Reader.ReadPackedUInt32();
             uint longCount = Reader.ReadPackedUInt32();
+            uint floatCount = Reader.ReadPackedUInt32();
+            uint doubleCount = Reader.ReadPackedUInt32();
             uint stringCount = Reader.ReadPackedUInt32();
             uint byteArrayCount = Reader.ReadPackedUInt32();
             uint dateTimeCount = Reader.ReadPackedUInt32();
@@ -319,6 +388,16 @@ namespace Lost
                 this.longData.Add(Reader.ReadString(), Reader.ReadInt64());
             }
 
+            for (int i = 0; i < floatCount; i++)
+            {
+                this.floatData.Add(Reader.ReadString(), Reader.ReadSingle());
+            }
+
+            for (int i = 0; i < doubleCount; i++)
+            {
+                this.doubleData.Add(Reader.ReadString(), Reader.ReadDouble());
+            }
+
             for (int i = 0; i < stringCount; i++)
             {
                 this.stringData.Add(Reader.ReadString(), Reader.ReadString());
@@ -332,6 +411,24 @@ namespace Lost
             for (int i = 0; i < dateTimeCount; i++)
             {
                 this.dateTimeData.Add(Reader.ReadString(), DateTime.FromFileTimeUtc(Reader.ReadInt64()));
+            }
+        }
+
+        private void Initialize()
+        {
+            if (this.isInitialized == false)
+            {
+                this.intData = new Dictionary<string, int>();
+                this.enumData = new Dictionary<string, int>();
+                this.boolData = new Dictionary<string, bool>();
+                this.longData = new Dictionary<string, long>();
+                this.floatData = new Dictionary<string, float>();
+                this.doubleData = new Dictionary<string, double>();
+                this.stringData = new Dictionary<string, string>();
+                this.byteArrayData = new Dictionary<string, byte[]>();
+                this.dateTimeData = new Dictionary<string, DateTime>();
+
+                this.isInitialized = true;
             }
         }
     }

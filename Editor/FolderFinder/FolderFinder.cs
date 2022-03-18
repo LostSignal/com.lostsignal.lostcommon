@@ -51,5 +51,11 @@ namespace Lost
                 Debug.LogError("Unable to open Editor Log...  Unknown Platform.");
             }
         }
+
+        [MenuItem("Tools/Lost/Show Persistent Data Path", priority = 22)]
+        public static void OpenPersistentDataPath()
+        {
+            EditorUtility.RevealInFinder(Application.persistentDataPath);
+        }
     }
 }

@@ -32,6 +32,11 @@
             "name": "com.unity.textmeshpro",
             "expression": "0.0.0",
             "define": "USING_TEXT_MESH_PRO"
+        },
+        {
+            "name": "com.unity.ugui",
+            "expression": "0.0.0",
+            "define": "USING_UGUI"
         }
     ],
     "noEngineReferences": false

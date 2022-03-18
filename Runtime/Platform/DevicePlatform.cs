@@ -12,17 +12,18 @@ namespace Lost
     public enum DevicePlatform
     {
         None = 0,
-
         [SuppressMessage("StyleCop.CSharp.NamingRules", "SA1300:ElementMustBeginWithUpperCaseLetter", Justification = "Doesn't make sense for platforms that are suppose to start with lowercase letters.")]
-        iOS = 1 << 0,  // UNITY_IOS / UNITY_IPHONE (Depricated)
-
-        Android = 1 << 1,  // UNITY_ANDROID
-        Windows = 1 << 2,  // UNITY_STANDALONE_WIN
-        Mac = 1 << 3,  // UNITY_STANDALONE_OSX
-        Linux = 1 << 4,  // UNITY_STANDALONE_LINUX
-        WindowsUniversal = 1 << 5,  // UNITY_WSA_10_0
-        XboxOne = 1 << 6,  // UNITY_XBOXONE
-        WebGL = 1 << 7,  // UNITY_WEBGL
-        MagicLeap = 1 << 8,  // UNITY_LUMIN
+        iOS = 1 << 0,
+        Android = 1 << 1,
+        Windows = 1 << 2,
+        Mac = 1 << 3,
+        Linux = 1 << 4,
+        WindowsUniversal = 1 << 5,
+        XboxOne = 1 << 6,
+        WebGL = 1 << 7,
+        MagicLeap = 1 << 8,
+        XboxSeries = 1 << 9,
+        PS4 = 1 << 10,
+        PS5 = 1 << 11,
     }
 }

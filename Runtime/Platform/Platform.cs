@@ -20,11 +20,11 @@ namespace Lost
     public static class Platform
     {
         // TODO [bgish] - make sure <uses-permission android:name="android.permission.VIBRATE"/> is in the AndroidManifest.xml file
-#if UNITY_ANDROID && !UNITY_EDITOR
+        #if UNITY_ANDROID && !UNITY_EDITOR
         private static readonly AndroidJavaClass UnityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
         private static readonly AndroidJavaObject CurrentActivity = UnityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
         private static readonly AndroidJavaObject Vibrator = CurrentActivity.Call<AndroidJavaObject>("getSystemService", "vibrator");
-#endif
+        #endif
 
         public delegate void OnResetDelegate();
 
@@ -45,105 +45,76 @@ namespace Lost
         {
             get
             {
-                // all windows
-                #if UNITY_STANDALONE_WIN
-                return DevicePlatform.Windows;
-                #elif UNITY_WSA_10_0
-                return DevicePlatform.WindowsUniversal;
-                #elif UNITY_XBOXONE
-                return DevicePlatform.XboxOne;
-                #endif
+                switch (Application.platform)
+                {
+                    case RuntimePlatform.IPhonePlayer:
+                        return DevicePlatform.iOS;
 
-                // mobile
-                #if UNITY_IPHONE || UNITY_IOS
-                return DevicePlatform.iOS;
-                #elif UNITY_ANDROID
-                return DevicePlatform.Android;
-                #endif
+                    case RuntimePlatform.Android:
+                        return DevicePlatform.Android;
 
-                // web
-                #if UNITY_WEBGL
-                return DevicePlatform.WebGL;
-                #endif
+                    case RuntimePlatform.WindowsPlayer:
+                    case RuntimePlatform.WindowsEditor:
+                        return DevicePlatform.Windows;
 
-                // mac / linux
-                #if UNITY_STANDALONE_OSX
-                return DevicePlatform.Mac;
-                #elif UNITY_STANDALONE_LINUX
-                return DevicePlatform.Linux;
-                #endif
+                    case RuntimePlatform.OSXEditor:
+                    case RuntimePlatform.OSXPlayer:
+                        return DevicePlatform.Mac;
 
-                // magic leap
-                #if UNITY_LUMIN
-                return DevicePlatform.MagicLeap;
-                #endif
+                    case RuntimePlatform.LinuxPlayer:
+                    case RuntimePlatform.LinuxEditor:
+                        return DevicePlatform.Linux;
 
-                //// switch (Application.platform)
-                //// {
-                ////     case RuntimePlatform.IPhonePlayer:
-                ////         return DevicePlatform.iOS;
-                ////
-                ////     case RuntimePlatform.Android:
-                ////         return DevicePlatform.Android;
-                ////
-                ////     case RuntimePlatform.BlackBerryPlayer:
-                ////     case RuntimePlatform.FlashPlayer:
-                ////
-                ////     case RuntimePlatform.LinuxPlayer:
-                ////
-                ////     case RuntimePlatform.MetroPlayerARM:
-                ////     case RuntimePlatform.MetroPlayerX64:
-                ////     case RuntimePlatform.MetroPlayerX86:
-                ////
-                ////     case RuntimePlatform.WSAPlayerARM:
-                ////     case RuntimePlatform.WSAPlayerX64:
-                ////     case RuntimePlatform.WSAPlayerX86:
-                ////
-                ////     case RuntimePlatform.OSXPlayer:
-                ////
-                ////     case RuntimePlatform.PS4:
-                ////     case RuntimePlatform.Switch:
-                ////
-                ////     case RuntimePlatform.WindowsPlayer:
-                ////     case RuntimePlatform.XboxOne:
-                ////
-                ////     case RuntimePlatform.WebGLPlayer:
-                ////     case RuntimePlatform.LinuxEditor:
-                ////     case RuntimePlatform.NaCl:
-                ////     case RuntimePlatform.OSXDashboardPlayer:
-                ////     case RuntimePlatform.OSXEditor:
-                ////     case RuntimePlatform.OSXWebPlayer:
-                ////     case RuntimePlatform.PS3:
-                ////     case RuntimePlatform.PSM:
-                ////     case RuntimePlatform.PSP2:
-                ////     case RuntimePlatform.SamsungTVPlayer:
-                ////     case RuntimePlatform.TizenPlayer:
-                ////     case RuntimePlatform.tvOS:
-                ////     case RuntimePlatform.WiiU:
-                ////     case RuntimePlatform.WindowsEditor:
-                ////     case RuntimePlatform.WindowsWebPlayer:
-                ////     case RuntimePlatform.WP8Player:
-                ////     case RuntimePlatform.XBOX360:
-                ////     default:
-                ////         break;
-                //// }
+                    case RuntimePlatform.WSAPlayerX86:
+                    case RuntimePlatform.WSAPlayerX64:
+                    case RuntimePlatform.WSAPlayerARM:
+                        return DevicePlatform.WindowsUniversal;
+
+                    case RuntimePlatform.GameCoreXboxOne:
+                    case RuntimePlatform.XboxOne:
+                        return DevicePlatform.XboxOne;
+
+                    case RuntimePlatform.GameCoreXboxSeries:
+                        return DevicePlatform.XboxSeries;
+
+                    case RuntimePlatform.WebGLPlayer:
+                        return DevicePlatform.WebGL;
+
+                    case RuntimePlatform.Lumin:
+                        return DevicePlatform.MagicLeap;
+
+                    case RuntimePlatform.PS4:
+                        return DevicePlatform.PS4;
+
+                    case RuntimePlatform.PS5:
+                        return DevicePlatform.PS5;
+
+                    case RuntimePlatform.tvOS:
+                    case RuntimePlatform.Switch:
+                    case RuntimePlatform.Stadia:
+                    case RuntimePlatform.CloudRendering:
+                    case RuntimePlatform.EmbeddedLinuxArm64:
+                    case RuntimePlatform.EmbeddedLinuxArm32:
+                    case RuntimePlatform.EmbeddedLinuxX64:
+                    case RuntimePlatform.EmbeddedLinuxX86:
+                    case RuntimePlatform.LinuxServer:
+                    case RuntimePlatform.WindowsServer:
+                    case RuntimePlatform.OSXServer:
+                    default:
+                        throw new NotImplementedException($"Platform {Application.platform} unsupported.");
+                }
             }
         }
 
         public static UnityEditorPlatform EditorPlatform
         {
-            get
+            get => Application.platform switch
             {
-                #if UNITY_EDITOR_WIN
-                return UnityEditorPlatform.Windows;
-                #elif UNITY_EDITOR_OSX
-                return UnityEditorPlatform.Mac;
-                #elif UNITY_EDITOR_LINUX
-                return UnityEditorPlatform.Linux;
-                #else
-                return UnityEditorPlatform.Unknown;
-                #endif
-            }
+                RuntimePlatform.WindowsEditor => UnityEditorPlatform.Windows,
+                RuntimePlatform.OSXEditor => UnityEditorPlatform.Mac,
+                RuntimePlatform.LinuxEditor => UnityEditorPlatform.Linux,
+                _ => UnityEditorPlatform.Unknown,
+            };
         }
 
         public static bool IsUnityCloudBuild
@@ -171,12 +142,12 @@ namespace Lost
 
         public static bool IsTouchSupported
         {
-            get { return UnityEngine.Input.touchSupported; }
+            get { return Input.touchSupported; }
         }
 
         public static bool IsMousePresent
         {
-            get { return UnityEngine.Input.mousePresent; }
+            get { return Input.mousePresent; }
         }
 
         public static bool IsPenPresent
@@ -275,6 +246,169 @@ namespace Lost
             }
         }
 
+        public static bool DoesLocalFileExist(string localFileName)
+        {
+            switch (CurrentDevicePlatform)
+            {
+                case DevicePlatform.iOS:
+                case DevicePlatform.Android:
+                case DevicePlatform.Windows:
+                case DevicePlatform.Mac:
+                case DevicePlatform.Linux:
+                    {
+                        try
+                        {
+                            return File.Exists(Path.Combine(Application.persistentDataPath, localFileName));
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.LogError($"Error in Platform.DoesLocalFileExist({localFileName})");
+                            Debug.LogException(ex);
+                            return false;
+                        }
+                    }
+
+                case DevicePlatform.WindowsUniversal:
+                case DevicePlatform.WebGL:
+                    {
+                        return PlayerPrefs.HasKey(localFileName);
+                    }
+
+                case DevicePlatform.XboxOne:
+                case DevicePlatform.XboxSeries:
+                case DevicePlatform.PS4:
+                case DevicePlatform.PS5:
+                case DevicePlatform.MagicLeap:
+                default:
+                    {
+                        throw new NotImplementedException();
+                    }
+            }
+        }
+
+        public static int GetLocalFile(string localFileName, byte[] buffer)
+        {
+            switch (CurrentDevicePlatform)
+            {
+                case DevicePlatform.iOS:
+                case DevicePlatform.Android:
+                case DevicePlatform.Windows:
+                case DevicePlatform.Mac:
+                case DevicePlatform.Linux:
+                    {
+                        try
+                        {
+                            var path = Path.Combine(Application.persistentDataPath, localFileName);
+
+                            using (var fileStream = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read))
+                            {
+                                int fileLength = (int)fileStream.Length;
+                                int index = 0;
+                                int count = fileLength;
+
+                                Debug.AssertFormat(buffer.Length > fileLength, "Platform.GetLocalFile byte buffer is too small. Has {0} and needs {1}.", buffer.Length, fileLength);
+
+                                while (count > 0)
+                                {
+                                    int n = fileStream.Read(buffer, index, count);
+
+                                    if (n == 0)
+                                    {
+                                        throw new Exception("Unknown Read Error");
+                                    }
+
+                                    index += n;
+                                    count -= n;
+                                }
+
+                                return count;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.LogError($"Error in Platform.GetLocalFile({localFileName})");
+                            Debug.LogException(ex);
+
+                            return -1;
+                        }
+                    }
+
+                case DevicePlatform.WindowsUniversal:
+                case DevicePlatform.WebGL:
+                    {
+                        var bytes = Convert.FromBase64String(PlayerPrefs.GetString(localFileName));
+
+                        Debug.AssertFormat(buffer.Length > bytes.Length, "Platform.GetLocalFile byte buffer is too small. Has {0} and needs {1}.", buffer.Length, bytes.Length);
+
+                        Array.Copy(bytes, buffer, bytes.Length);
+
+                        return bytes.Length;
+                    }
+
+                case DevicePlatform.XboxOne:
+                case DevicePlatform.XboxSeries:
+                case DevicePlatform.PS4:
+                case DevicePlatform.PS5:
+                case DevicePlatform.MagicLeap:
+                default:
+                    {
+                        throw new NotImplementedException();
+                    }
+            }
+        }
+
+        public static void SaveLocalFile(string localFileName, byte[] bytes)
+        {
+            SaveLocalFile(localFileName, bytes, 0, bytes.Length);
+        }
+
+        public static void SaveLocalFile(string localFileName, byte[] bytes, int offset, int count)
+        {
+            switch (CurrentDevicePlatform)
+            {
+                case DevicePlatform.iOS:
+                case DevicePlatform.Android:
+                case DevicePlatform.Windows:
+                case DevicePlatform.Mac:
+                case DevicePlatform.Linux:
+                    {
+                        try
+                        {
+                            var path = Path.Combine(Application.persistentDataPath, localFileName);
+
+                            using (var fileStream = new FileStream(path, FileMode.Create, FileAccess.Write, FileShare.Read))
+                            {
+                                fileStream.Write(bytes, offset, count);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.LogError($"Error in Platform.SaveLocalFile({localFileName})");
+                            Debug.LogException(ex);
+                        }
+
+                        break;
+                    }
+
+                case DevicePlatform.WindowsUniversal:
+                case DevicePlatform.WebGL:
+                    {
+                        PlayerPrefs.SetString(localFileName, Convert.ToBase64String(bytes));
+                        PlayerPrefs.Save();
+
+                        break;
+                    }
+
+                case DevicePlatform.XboxOne:
+                case DevicePlatform.XboxSeries:
+                case DevicePlatform.PS4:
+                case DevicePlatform.PS5:
+                case DevicePlatform.MagicLeap:
+                default:
+                    throw new NotImplementedException();
+            }
+        }
+
         [EditorEvents.OnExitingPlayMode]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Called By Unity")]
         private static void OnExitPlayMode()
@@ -292,64 +426,6 @@ namespace Lost
                 Application.quitting += () => IsApplicationQuitting = true;
             }
         }
-
-        //// NOTE [bgish]: Probably wont need these till we start saving Analytics and Logging to disk
-        ////
-        //// public static bool DoesLocalFileExist(string localFileName)
-        //// {
-        ////     switch (CurrentDevicePlatform)
-        ////     {
-        ////         case DevicePlatform.WebGL:
-        ////         case DevicePlatform.XboxOne:
-        ////         case DevicePlatform.WindowsUniversal:
-        ////             {
-        ////                 return PlayerPrefs.HasKey(localFileName);
-        ////             }
-        ////
-        ////         default:
-        ////             {
-        ////                 try
-        ////                 {
-        ////                     return File.Exists(Path.Combine(Application.persistentDataPath, localFileName));
-        ////                 }
-        ////                 catch
-        ////                 {
-        ////                     return false;
-        ////                 }
-        ////             }
-        ////     }
-        //// }
-        ////
-        //// public static byte[] GetLocalFile(string localFileName)
-        //// {
-        ////     switch (CurrentDevicePlatform)
-        ////     {
-        ////         case DevicePlatform.WebGL:
-        ////         case DevicePlatform.XboxOne:
-        ////         case DevicePlatform.WindowsUniversal:
-        ////             return Convert.FromBase64String(PlayerPrefs.GetString(localFileName));
-        ////
-        ////         default:
-        ////             return File.ReadAllBytes(Path.Combine(Application.persistentDataPath, localFileName));
-        ////     }
-        //// }
-        ////
-        //// public static void SaveLocalFile(string localFileName, byte[] fileBytes)
-        //// {
-        ////     switch (CurrentDevicePlatform)
-        ////     {
-        ////         case DevicePlatform.WebGL:
-        ////         case DevicePlatform.XboxOne:
-        ////         case DevicePlatform.WindowsUniversal:
-        ////             PlayerPrefs.SetString(localFileName, Convert.ToBase64String(fileBytes));
-        ////             PlayerPrefs.Save();
-        ////             break;
-        ////
-        ////         default:
-        ////             File.WriteAllBytes(Path.Combine(Application.persistentDataPath, localFileName), fileBytes);
-        ////             break;
-        ////     }
-        //// }
     }
 }
 

@@ -166,6 +166,8 @@ namespace Lost
             return builder.ToString();
         }
 
+        public byte[] ToArray() => this.bits;
+
         private void EnsureArraySize(int neededLength, bool suppressErrors = false)
         {
             bool didGrow = false;
