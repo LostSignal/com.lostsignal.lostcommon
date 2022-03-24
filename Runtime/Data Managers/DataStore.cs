@@ -234,6 +234,8 @@ namespace Lost
 
         public long GetLong(string key, long defaultValue = 0) => this.GetKey(this.longData, key, defaultValue);
 
+        public float GetFloat(string key, float defaultValue = 0.0f) => this.GetKey(this.floatData, key, defaultValue);
+
         public double GetDouble(string key, double defaultValue = 0.0) => this.GetKey(this.doubleData, key, defaultValue);
 
         public string GetString(string key, string defaultValue = null) => this.GetKey(this.stringData, key, defaultValue);
