@@ -222,13 +222,17 @@ namespace Lost
         // Gets
         public int GetInt(string key, int defaultValue = 0) => this.GetKey(this.intData, key, defaultValue);
 
-        public T GetEnumt<T>(string key, T defaultValue = default) => (T)Enum.ToObject(typeof(T), this.GetKey(this.enumData, key, Convert.ToInt32(defaultValue)));
+        public T GetEnum<T>(string key, T defaultValue = default)
+            where T : Enum
+        {
+            return (T)Enum.ToObject(typeof(T), this.GetKey(this.enumData, key, Convert.ToInt32(defaultValue)));
+        }
+
+        public int GetEnumAsInt(string key, int defaultValue = 0) => this.GetKey(this.enumData, key, defaultValue);
 
         public bool GetBool(string key, bool defaultValue = false) => this.GetKey(this.boolData, key, defaultValue);
 
         public long GetLong(string key, long defaultValue = 0) => this.GetKey(this.longData, key, defaultValue);
-
-        public float GetFloat(string key, float defaultValue = 0.0f) => this.GetKey(this.floatData, key, defaultValue);
 
         public double GetDouble(string key, double defaultValue = 0.0) => this.GetKey(this.doubleData, key, defaultValue);
 
@@ -260,7 +264,13 @@ namespace Lost
         // Set
         public void SetInt(string key, int value) => this.SetValueTypeKey(ref this.intData, key, value);
 
-        public void SetEnum<T>(string key, T value) => this.SetValueTypeKey(ref this.enumData, key, Convert.ToInt32(value));
+        public void SetEnum<T>(string key, T value)
+            where T : Enum
+        {
+            this.SetValueTypeKey(ref this.enumData, key, Convert.ToInt32(value));
+        }
+
+        public void SetEnumAsInt(string key, int value) => this.SetValueTypeKey(ref this.enumData, key, value);
 
         public void SetBool(string key, bool value) => this.SetValueTypeKey(ref this.boolData, key, value);
 
