@@ -7,15 +7,18 @@
 namespace Lost
 {
     using System;
+    using System.Collections.Generic;
     using System.Runtime.CompilerServices;
     using UnityEngine;
 
     public abstract class DataStoreObject : ScriptableObject
     {
-#pragma warning disable 0649
+        private static readonly List<DataStoreObject> DataStoreObjects = new List<DataStoreObject>();
+
+        #pragma warning disable 0649
         [SerializeField] [ReadOnly] private int id;
         [SerializeField] private bool saveOnUnload;
-#pragma warning restore 0649
+        #pragma warning restore 0649
 
         private DataStore dataStore = new DataStore();
 
@@ -37,14 +40,19 @@ namespace Lost
 
         protected virtual void OnEnable()
         {
-            this.Load();
+            if (Platform.IsPlayingOrEnteringPlaymode)
+            {
+                DataStoreObjects.AddIfUnique(this);
+                this.Load();
+            }
         }
 
         protected virtual void OnDisable()
         {
-            if (this.saveOnUnload)
+            if (DataStoreObjects.Contains(this))
             {
-                this.Save();
+                DataStoreObjects.Remove(this);
+                this.SaveOnUnload();
             }
         }
 
@@ -61,6 +69,34 @@ namespace Lost
                 EditorUtil.SetDirty(this);
             }
             #endif
+        }
+
+        [EditorEvents.OnEnterPlayMode]
+        private static void OnEnterPlayMode()
+        {
+            DataStoreObjects.Clear();
+        }
+
+        [EditorEvents.OnExitingPlayMode]
+        private static void OnExitingPlayMode()
+        {
+            foreach (var dataStoreObject in DataStoreObjects)
+            {
+                if (dataStoreObject)
+                {
+                    dataStoreObject.SaveOnUnload();
+                }
+            }
+
+            DataStoreObjects.Clear();
+        }
+
+        private void SaveOnUnload()
+        {
+            if (this.saveOnUnload)
+            {
+                this.Save();
+            }
         }
     }
 }

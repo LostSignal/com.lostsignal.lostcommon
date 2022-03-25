@@ -10,6 +10,7 @@ namespace Lost
 {
     using System;
     using System.IO;
+    using System.Runtime.CompilerServices;
     using UnityEngine;
     using UnityEngine.Networking;
 
@@ -39,6 +40,19 @@ namespace Lost
         }
 
         public static bool IsApplicationQuitting { get; private set; }
+
+        public static bool IsPlayingOrEnteringPlaymode
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                #if UNITY_EDITOR
+                return UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode;
+                #else
+                return true;
+                #endif
+            }
+        }
 
         // TODO [bgish]: Try to make this function work by purely using Application.platform
         public static DevicePlatform CurrentDevicePlatform
@@ -411,7 +425,7 @@ namespace Lost
 
         [EditorEvents.OnExitingPlayMode]
         [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "Called By Unity")]
-        private static void OnExitPlayMode()
+        private static void OnExitingPlayMode()
         {
             IsApplicationQuitting = true;
         }

@@ -170,7 +170,15 @@ namespace Lost
         {
             this.isDirty = false;
 
-            this.Initialize();
+            this.intData ??= new Dictionary<string, int>();
+            this.enumData ??= new Dictionary<string, int>();
+            this.boolData ??= new Dictionary<string, bool>();
+            this.longData ??= new Dictionary<string, long>();
+            this.floatData ??= new Dictionary<string, float>();
+            this.doubleData ??= new Dictionary<string, double>();
+            this.stringData ??= new Dictionary<string, string>();
+            this.byteArrayData ??= new Dictionary<string, byte[]>();
+            this.dateTimeData ??= new Dictionary<string, DateTime>();
 
             // Make sure everything is cleared
             this.intData.Clear();
@@ -453,24 +461,6 @@ namespace Lost
             for (int i = 0; i < dateTimeCount; i++)
             {
                 this.dateTimeData.Add(Reader.ReadString(), DateTime.FromFileTimeUtc(Reader.ReadInt64()));
-            }
-        }
-
-        private void Initialize()
-        {
-            if (this.isInitialized == false)
-            {
-                this.intData = new Dictionary<string, int>();
-                this.enumData = new Dictionary<string, int>();
-                this.boolData = new Dictionary<string, bool>();
-                this.longData = new Dictionary<string, long>();
-                this.floatData = new Dictionary<string, float>();
-                this.doubleData = new Dictionary<string, double>();
-                this.stringData = new Dictionary<string, string>();
-                this.byteArrayData = new Dictionary<string, byte[]>();
-                this.dateTimeData = new Dictionary<string, DateTime>();
-
-                this.isInitialized = true;
             }
         }
     }

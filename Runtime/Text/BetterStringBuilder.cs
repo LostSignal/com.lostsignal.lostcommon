@@ -126,7 +126,7 @@ namespace Lost
             if (format == FloatFormat.HeightFeetInches)
             {
                 double feet = (long)(value / 0.3048);
-                double inches = (value - feet) * 12.0;
+                double inches = (value - (feet * 0.3048)) * 12.0;
                 long inchesLeft = (long)inches;
                 double inchesRight = inches - inchesLeft;
 
