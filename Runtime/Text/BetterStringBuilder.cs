@@ -17,6 +17,21 @@ namespace Lost
         Abbreviated = 100,
     }
 
+    public enum FloatFormat
+    {
+        Plain,
+        ThousandsSeperated,
+        HeightFeetInches,
+    }
+
+    public enum DecimalPlaces
+    {
+        Zero,
+        One,
+        Two,
+        Three,
+    }
+
     public struct BetterStringBuilder
     {
         private const long Billion = 1000000000;
@@ -100,6 +115,55 @@ namespace Lost
                 default:
                     Debug.LogErrorFormat("Found Unknown IntFormat {0}", format);
                     return this.AppendLong(value, false);
+            }
+        }
+
+        public BetterStringBuilder Append(float value, int decimalPlaces, FloatFormat format = FloatFormat.Plain)
+        {
+            BetterStringBuilder current = this;
+
+            // Special case for showing Height/Inches
+            if (format == FloatFormat.HeightFeetInches)
+            {
+                double feet = (long)(value / 0.3048);
+                double inches = (value - feet) * 12.0;
+                long inchesLeft = (long)inches;
+                double inchesRight = inches - inchesLeft;
+
+                current = current
+                    .Append((int)feet)
+                    .Append("' ")
+                    .Append((int)inches);
+
+                current = AppendDecimalPlaces(current, inchesRight, decimalPlaces);
+                current = current.Append("\"");
+            }
+            else
+            {
+                long leftSide = (long)value;
+                double rightSide = value - leftSide;
+
+                current = current.AppendLong(leftSide, format == FloatFormat.ThousandsSeperated);
+                current = AppendDecimalPlaces(current, rightSide, decimalPlaces);
+            }
+
+            return current;
+
+            BetterStringBuilder AppendDecimalPlaces(BetterStringBuilder current, double value, int decimalPlaces)
+            {
+                if (decimalPlaces > 0)
+                {
+                    current = current.Append(GetDecimalPointSeperator());
+
+                    int factor = 1;
+                    for (int i = 0; i < decimalPlaces; i++)
+                    {
+                        factor *= 10;
+                        current = current.Append((int)(value * factor) % 10);
+                    }
+                }
+
+                return current;
             }
         }
 

@@ -317,6 +317,8 @@ namespace Lost
                 this.isDirty = true;
             }
 
+            bool valueChanged = false;
+
             if (dictionary.TryGetValue(key, out T currentDictionaryValue))
             {
                 if (value.Equals(currentDictionaryValue))
@@ -327,12 +329,19 @@ namespace Lost
                 {
                     dictionary[key] = value;
                     this.isDirty = true;
+                    valueChanged = true;
                 }
             }
             else
             {
                 dictionary.Add(key, value);
                 this.isDirty = true;
+                valueChanged = true;
+            }
+
+            if (valueChanged)
+            {
+                this.FireOnDataStoreKeyChanged(key);
             }
         }
 
@@ -344,6 +353,8 @@ namespace Lost
                 dictionary = new Dictionary<string, T>();
                 this.isDirty = true;
             }
+
+            bool valueChanged = false;
 
             if (dictionary.TryGetValue(key, out T currentDictionaryValue))
             {
@@ -359,12 +370,31 @@ namespace Lost
                 {
                     dictionary[key] = value;
                     this.isDirty = true;
+                    valueChanged = true;
                 }
             }
             else
             {
                 dictionary.Add(key, value);
                 this.isDirty = true;
+                valueChanged = true;
+            }
+
+            if (valueChanged)
+            {
+                this.FireOnDataStoreKeyChanged(key);
+            }
+        }
+
+        private void FireOnDataStoreKeyChanged(string key)
+        {
+            try
+            {
+                this.onDataStoreKeyChanged?.Invoke(key);
+            }
+            catch (Exception ex)
+            {
+                UnityEngine.Debug.LogException(ex);
             }
         }
 
