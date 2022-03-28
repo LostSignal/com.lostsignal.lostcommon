@@ -125,13 +125,14 @@ namespace Lost
             // Special case for showing Height/Inches
             if (format == FloatFormat.HeightFeetInches)
             {
-                double feet = (long)(value / 0.3048);
-                double inches = (value - (feet * 0.3048)) * 12.0;
+                double feetAsDouble = value / 0.3048;
+                long feetAsLong = (long)feetAsDouble;
+                double inches = (feetAsDouble - feetAsLong) * 12.0;
                 long inchesLeft = (long)inches;
                 double inchesRight = inches - inchesLeft;
 
                 current = current
-                    .Append((int)feet)
+                    .Append(feetAsLong)
                     .Append("' ")
                     .Append((int)inches);
 
