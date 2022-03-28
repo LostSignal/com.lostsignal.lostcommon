@@ -8,11 +8,11 @@
 
 namespace Lost.XR
 {
-    using Lost;
     using System;
     using System.Collections.Generic;
     using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
+    using Lost;
     using UnityEngine;
     using UnityEngine.XR.Management;
 
@@ -258,12 +258,12 @@ namespace Lost.XR
                 xrSettingsManager.DeinitializeLoader();
             }
 
+            this.currentDevice = xrDevice;
+
             if (this.currentDevice != xrDevice)
             {
                 this.onXRDeviceChange.SafeInvoke();
             }
-
-            this.currentDevice = xrDevice;
 
             // Setting target framerate on mobile
             if (this.setTargetFramerateOnMobileAR && this.currentDevice.XRType == XRType.ARHanheld)
@@ -344,7 +344,7 @@ namespace Lost.XR
                 if (loaderName == null)
                 {
                     Debug.LogError($"XRUtilManager: Unkonwn XRLoader Type \"{primaryXRLoader}\" encountered");
-                    return - 1;
+                    return -1;
                 }
 
                 // Searching for the loader and moving to the front of the list
@@ -374,7 +374,7 @@ namespace Lost.XR
                 case XRLoader.MagicLeap: return "Magic Leap Loader";
                 case XRLoader.WindowsMixedReality: return "Windows MR Loader";
                 case XRLoader.SteamVR: return "Steam VR Loader";
-                case XRLoader.OpenXR : return "Open XR Loader";
+                case XRLoader.OpenXR: return "Open XR Loader";
 
                 default:
                     {
