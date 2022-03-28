@@ -27,7 +27,7 @@ namespace Lost.XR
         private float leftGrip;
         private Vector2 leftStick;
         private Button leftStickClick;
-        private Button leftPrimaryButtion;
+        private Button leftPrimaryButton;
         private Button leftSecondaryButton;
         private Button menu;
         private Vector3 leftPosition;
@@ -101,7 +101,7 @@ namespace Lost.XR
         public Button LeftPrimaryButtion
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => this.leftPrimaryButtion;
+            get => this.leftPrimaryButton;
         }
 
         public Button LeftSecondaryButton
@@ -218,7 +218,7 @@ namespace Lost.XR
                         this.leftGrip = grip;
                         this.leftStick = primary2DAxis;
                         this.leftStickClick = Button.Update(this.leftStickClick.IsPressed, this.leftStickClick.PressedTime, primary2DAxisClick, deltaTime);
-                        this.leftPrimaryButtion = Button.Update(this.leftPrimaryButtion.IsPressed, this.leftPrimaryButtion.PressedTime, primaryButton, deltaTime);
+                        this.leftPrimaryButton = Button.Update(this.leftPrimaryButton.IsPressed, this.leftPrimaryButton.PressedTime, primaryButton, deltaTime);
                         this.leftSecondaryButton = Button.Update(this.leftSecondaryButton.IsPressed, this.leftSecondaryButton.PressedTime, secondaryButton, deltaTime);
                         this.leftPosition = position;
                         this.leftRotation = rotation;
@@ -260,11 +260,32 @@ namespace Lost.XR
 
             StringBuilderCache.Append($" A = {this.rightPrimaryButton.IsPressed},");
             StringBuilderCache.Append($" B = {this.rightSecondaryButton.IsPressed},");
-            StringBuilderCache.Append($" X = {this.leftPrimaryButtion.IsPressed},");
+            StringBuilderCache.Append($" X = {this.leftPrimaryButton.IsPressed},");
             StringBuilderCache.Append($" Y = {this.leftSecondaryButton.IsPressed},");
             StringBuilderCache.Append($" Menu = {this.menu.IsPressed}");
 
             return StringBuilderCache;
+        }
+
+        public bool IsAnyButtonDown()
+        {
+            if (this.isLeftControllerConnected)
+            {
+                if (this.leftPrimaryButton.IsPressed || this.leftSecondaryButton.IsPressed)
+                {
+                    return true;
+                }
+            }
+
+            if (this.IsRightControllerConnected)
+            {
+                if (this.rightPrimaryButton.IsPressed || this.rightSecondaryButton.IsPressed)
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         /* ------ HAPTICS ------
