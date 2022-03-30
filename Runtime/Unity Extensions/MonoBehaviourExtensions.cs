@@ -100,6 +100,12 @@ namespace Lost
             }
         }
 
+        public static void LogException(this MonoBehaviour monoBehaviour, Exception ex)
+        {
+            Debug.LogError($"{monoBehaviour.GetType().Name} {GetFullName(monoBehaviour)} has encountered an exception {ex.Message}", monoBehaviour);
+            Debug.LogException(ex, monoBehaviour);
+        }
+
         public static void AssertNotNull(this MonoBehaviour monoBehaviour, object obj, string nameOfObject = null)
         {
             if (obj == null)
