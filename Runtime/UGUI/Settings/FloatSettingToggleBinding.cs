@@ -12,15 +12,13 @@ namespace Lost
 
     public class FloatSettingToggleBinding : MonoBehaviour, IAwake, IValidate
     {
-        #if USING_UGUI && USING_TEXT_MESH_PRO
-
-        #pragma warning disable 0649
+#pragma warning disable 0649
         [SerializeField] private FloatSetting floatSetting;
 
         [Header("Toggle Binding Object")]
         [SerializeField] private Toggle floatToggle;
         [SerializeField] private float floatToggleValue;
-        #pragma warning restore 0649
+#pragma warning restore 0649
 
         public void OnAwake()
         {
@@ -100,7 +98,5 @@ namespace Lost
                 this.floatToggle.onValueChanged.RemoveListener(this.OnToggleValueChanged);
             }
         }
-
-        #endif
     }
 }

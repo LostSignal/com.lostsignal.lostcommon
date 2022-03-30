@@ -12,15 +12,13 @@ namespace Lost
 
     public class BoolSettingToggleBinding : MonoBehaviour, IAwake, IValidate
     {
-        #if USING_UGUI && USING_TEXT_MESH_PRO
-
-        #pragma warning disable 0649
+#pragma warning disable 0649
         [SerializeField] private BoolSetting boolSetting;
 
         [Header("Toggle Binding Object")]
         [SerializeField] private Toggle toggle;
         [SerializeField] private bool toggleOnValue;
-        #pragma warning restore 0649
+#pragma warning restore 0649
 
         public void OnAwake()
         {
@@ -93,7 +91,5 @@ namespace Lost
                 this.toggle.onValueChanged.RemoveListener(this.OnToggleValueChanged);
             }
         }
-
-        #endif
     }
 }

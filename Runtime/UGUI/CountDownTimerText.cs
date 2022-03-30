@@ -1,10 +1,8 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // <copyright file="CountDownTimerText.cs" company="Lost Signal LLC">
 //     Copyright (c) Lost Signal LLC. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-
-#if USING_TEXT_MESH_PRO
 
 namespace Lost
 {
@@ -15,12 +13,12 @@ namespace Lost
     [RequireComponent(typeof(Text))]
     public class CountDownTimerText : MonoBehaviour
     {
-        #pragma warning disable 0649
+#pragma warning disable 0649
         [SerializeField] private string finishedText;
 
         // Hidden Serialized Fields
         [SerializeField] [HideInInspector] private Text text;
-        #pragma warning restore 0649
+#pragma warning restore 0649
 
         private DateTime target;
         private float timer;
@@ -91,5 +89,3 @@ namespace Lost
         }
     }
 }
-
-#endif

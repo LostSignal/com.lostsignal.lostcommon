@@ -1,10 +1,8 @@
-﻿//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
 // <copyright file="TimespanText.cs" company="Lost Signal LLC">
 //     Copyright (c) Lost Signal LLC. All rights reserved.
 // </copyright>
 //-----------------------------------------------------------------------
-
-#if USING_TEXT_MESH_PRO
 
 namespace Lost
 {
@@ -28,7 +26,7 @@ namespace Lost
     [RequireComponent(typeof(Text))]
     public class TimespanText : MonoBehaviour
     {
-        #pragma warning disable 0649
+#pragma warning disable 0649
         [SerializeField] private TimespanTextFormat daysLeftFormat;
         [SerializeField] private TimespanTextFormat hoursLeftFormat;
         [SerializeField] private TimespanTextFormat minutesLeftFormat;
@@ -36,7 +34,7 @@ namespace Lost
 
         // Hidden Serialized Fields
         [SerializeField] [HideInInspector] private Text text;
-        #pragma warning restore 0649
+#pragma warning restore 0649
 
         private Coroutine countdownCoroutine;
         private int seconds;
@@ -141,97 +139,95 @@ namespace Lost
             switch (this.GetFormat())
             {
                 case TimespanTextFormat.ColonSeparatedDHMS:
-                {
-                    BetterStringBuilder.New()
-                        .Append(days).Append(":")
-                        .AppendTwoDigitNumber(hours).Append(":")
-                        .AppendTwoDigitNumber(minutes).Append(":")
-                        .AppendTwoDigitNumber(seconds)
-                        .Set(this.text);
+                    {
+                        BetterStringBuilder.New()
+                            .Append(days).Append(":")
+                            .AppendTwoDigitNumber(hours).Append(":")
+                            .AppendTwoDigitNumber(minutes).Append(":")
+                            .AppendTwoDigitNumber(seconds)
+                            .Set(this.text);
 
-                    break;
-                }
+                        break;
+                    }
 
                 case TimespanTextFormat.ColonSeparatedHMS:
-                {
-                    BetterStringBuilder.New()
-                        .Append((days * 24) + hours).Append(":")
-                        .AppendTwoDigitNumber(minutes).Append(":")
-                        .AppendTwoDigitNumber(seconds)
-                        .Set(this.text);
+                    {
+                        BetterStringBuilder.New()
+                            .Append((days * 24) + hours).Append(":")
+                            .AppendTwoDigitNumber(minutes).Append(":")
+                            .AppendTwoDigitNumber(seconds)
+                            .Set(this.text);
 
-                    break;
-                }
+                        break;
+                    }
 
                 case TimespanTextFormat.ColonSeparatedMS:
-                {
-                    BetterStringBuilder.New()
-                        .Append((((days * 24) + hours) * 60) + minutes).Append(":")
-                        .AppendTwoDigitNumber(seconds)
-                        .Set(this.text);
+                    {
+                        BetterStringBuilder.New()
+                            .Append((((days * 24) + hours) * 60) + minutes).Append(":")
+                            .AppendTwoDigitNumber(seconds)
+                            .Set(this.text);
 
-                    break;
-                }
+                        break;
+                    }
 
                 case TimespanTextFormat.ColonSeparatedS:
-                {
-                    BetterStringBuilder.New()
-                        .Append(this.seconds)
-                        .Set(this.text);
+                    {
+                        BetterStringBuilder.New()
+                            .Append(this.seconds)
+                            .Set(this.text);
 
-                    break;
-                }
+                        break;
+                    }
 
                 case TimespanTextFormat.SingleLettersDHMS:
-                {
-                    BetterStringBuilder.New()
-                        .Append(days).Append("d ")
-                        .AppendTwoDigitNumber(hours).Append("h ")
-                        .AppendTwoDigitNumber(minutes).Append("m ")
-                        .AppendTwoDigitNumber(seconds).Append("s")
-                        .Set(this.text);
+                    {
+                        BetterStringBuilder.New()
+                            .Append(days).Append("d ")
+                            .AppendTwoDigitNumber(hours).Append("h ")
+                            .AppendTwoDigitNumber(minutes).Append("m ")
+                            .AppendTwoDigitNumber(seconds).Append("s")
+                            .Set(this.text);
 
-                    break;
-                }
+                        break;
+                    }
 
                 case TimespanTextFormat.SingleLettersHMS:
-                {
-                    BetterStringBuilder.New()
-                        .Append((days * 24) + hours).Append("h ")
-                        .AppendTwoDigitNumber(minutes).Append("m ")
-                        .AppendTwoDigitNumber(seconds).Append("s")
-                        .Set(this.text);
+                    {
+                        BetterStringBuilder.New()
+                            .Append((days * 24) + hours).Append("h ")
+                            .AppendTwoDigitNumber(minutes).Append("m ")
+                            .AppendTwoDigitNumber(seconds).Append("s")
+                            .Set(this.text);
 
-                    break;
-                }
+                        break;
+                    }
 
                 case TimespanTextFormat.SingleLettersMS:
-                {
-                    BetterStringBuilder.New()
-                        .Append((((days * 24) + hours) * 60) + minutes).Append("m ")
-                        .AppendTwoDigitNumber(seconds).Append("s")
-                        .Set(this.text);
+                    {
+                        BetterStringBuilder.New()
+                            .Append((((days * 24) + hours) * 60) + minutes).Append("m ")
+                            .AppendTwoDigitNumber(seconds).Append("s")
+                            .Set(this.text);
 
-                    break;
-                }
+                        break;
+                    }
 
                 case TimespanTextFormat.SingleLettersS:
-                {
-                    BetterStringBuilder.New()
-                        .Append(this.seconds).Append("s")
-                        .Set(this.text);
+                    {
+                        BetterStringBuilder.New()
+                            .Append(this.seconds).Append("s")
+                            .Set(this.text);
 
-                    break;
-                }
+                        break;
+                    }
 
                 default:
-                {
-                    Debug.LogErrorFormat("Found Unknown Timespan Format {0}", this.GetFormat());
-                    break;
-                }
+                    {
+                        Debug.LogErrorFormat("Found Unknown Timespan Format {0}", this.GetFormat());
+                        break;
+                    }
             }
         }
     }
 }
-
-#endif

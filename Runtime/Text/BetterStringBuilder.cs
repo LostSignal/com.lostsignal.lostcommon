@@ -4,8 +4,6 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-#if USING_TEXT_MESH_PRO
-
 namespace Lost
 {
     using UnityEngine;
@@ -168,14 +166,10 @@ namespace Lost
             }
         }
 
-        #if USING_TEXT_MESH_PRO
-
         public void Set(TMPro.TMP_Text text)
         {
             text.SetCharArray(CharBuffer, 0, currentLength);
         }
-
-        #endif
 
         public override string ToString()
         {
@@ -184,20 +178,20 @@ namespace Lost
 
         private static string GetThousandsSeperator()
         {
-            #if UNITY
+#if UNITY
             return Localization.Localization.GetThousandsSeperator();
-            #else
+#else
             return ",";
-            #endif
+#endif
         }
 
         private static string GetDecimalPointSeperator()
         {
-            #if UNITY
+#if UNITY
             return Localization.Localization.GetDecimalPointSeperator();
-            #else
+#else
             return ".";
-            #endif
+#endif
         }
 
         private BetterStringBuilder AppendLong(long value, bool showThousandsSeperator)
@@ -280,5 +274,3 @@ namespace Lost
         }
     }
 }
-
-#endif

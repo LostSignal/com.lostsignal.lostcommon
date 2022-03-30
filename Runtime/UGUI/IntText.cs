@@ -4,8 +4,6 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-#if USING_TEXT_MESH_PRO
-
 namespace Lost
 {
     using System.Collections;
@@ -15,7 +13,7 @@ namespace Lost
 
     public class IntText : MonoBehaviour
     {
-        #pragma warning disable 0649
+#pragma warning disable 0649
         [SerializeField] private TMP_Text text;
         [SerializeField] private string unsetText = "?";
         [SerializeField] private string prefixValue = string.Empty;
@@ -24,7 +22,7 @@ namespace Lost
         [SerializeField] private UnityEvent onEndAnimation;
         [SerializeField] private AnimationCurve animationCurve = new AnimationCurve(new Keyframe { time = 0, value = 0 }, new Keyframe { time = 1, value = 1 });
         [SerializeField] private IntFormat format;
-        #pragma warning restore 0649
+#pragma warning restore 0649
 
         private Coroutine animateToGoalCoroutine;
         private int intValue = int.MinValue;
@@ -166,5 +164,3 @@ namespace Lost
         }
     }
 }
-
-#endif

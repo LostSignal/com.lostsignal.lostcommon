@@ -8,21 +8,16 @@ namespace Lost
 {
     using System.Collections.Generic;
     using UnityEngine;
-
-    #if USING_UGUI && USING_TEXT_MESH_PRO
     using UnityEngine.UI;
-    #endif
 
     public class FloatSettingSliderBinding : MonoBehaviour, IAwake, IValidate
     {
-        #if USING_UGUI && USING_TEXT_MESH_PRO
-
-        #pragma warning disable 0649
+#pragma warning disable 0649
         [SerializeField] private FloatSetting floatSetting;
 
         [Header("Slider Binding Object")]
         [SerializeField] private Slider floatSlider;
-        #pragma warning restore 0649
+#pragma warning restore 0649
 
         public void OnAwake()
         {
@@ -95,7 +90,5 @@ namespace Lost
                 this.floatSlider.onValueChanged.RemoveListener(this.OnSliderValueChanged);
             }
         }
-
-        #endif
     }
 }

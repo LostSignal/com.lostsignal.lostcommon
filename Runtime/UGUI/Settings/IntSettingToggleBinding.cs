@@ -12,15 +12,13 @@ namespace Lost
 
     public class IntSettingToggleBinding : MonoBehaviour, IAwake, IValidate
     {
-        #if USING_UGUI && USING_TEXT_MESH_PRO
-
-        #pragma warning disable 0649
+#pragma warning disable 0649
         [SerializeField] private IntSetting intSetting;
 
         [Header("Toggle Binding Object")]
         [SerializeField] private Toggle intToggle;
         [SerializeField] private int intToggleValue;
-        #pragma warning restore 0649
+#pragma warning restore 0649
 
         public void OnAwake()
         {
@@ -91,7 +89,5 @@ namespace Lost
                 this.intToggle.onValueChanged.RemoveListener(this.OnToggleValueChanged);
             }
         }
-
-        #endif
     }
 }

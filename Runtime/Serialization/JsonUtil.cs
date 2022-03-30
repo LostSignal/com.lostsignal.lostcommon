@@ -4,8 +4,6 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-#if !UNITY || USING_NEWTONSOFT
-
 namespace Lost
 {
     using Newtonsoft.Json;
@@ -46,5 +44,3 @@ namespace Lost
         }
     }
 }
-
-#endif

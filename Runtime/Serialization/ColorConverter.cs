@@ -4,8 +4,6 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-#if !UNITY || USING_NEWTONSOFT
-
 namespace Lost
 {
     using System;
@@ -30,5 +28,3 @@ namespace Lost
         }
     }
 }
-
-#endif

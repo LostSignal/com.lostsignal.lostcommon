@@ -11,15 +11,13 @@ namespace Lost
 
     public class IntSettingIntTextBinding : MonoBehaviour, IAwake, IValidate
     {
-        #if USING_UGUI && USING_TEXT_MESH_PRO
-
-        #pragma warning disable 0649
+#pragma warning disable 0649
         [SerializeField] private IntSetting intSetting;
 
         [Header("Binding Objects")]
         [SerializeField] private IntText intText;
         [SerializeField] private TextUpdateType intTextUpdateType;
-        #pragma warning restore 0649
+#pragma warning restore 0649
 
         public void OnAwake()
         {
@@ -72,7 +70,5 @@ namespace Lost
 
             this.intSetting.OnSettingChanged -= this.OnSettingChanged;
         }
-
-        #endif
     }
 }

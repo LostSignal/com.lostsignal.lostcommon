@@ -12,14 +12,12 @@ namespace Lost
 
     public class StringSettingTextBinding : MonoBehaviour, IAwake, IValidate
     {
-        #if USING_UGUI && USING_TEXT_MESH_PRO
-
-        #pragma warning disable 0649
+#pragma warning disable 0649
         [SerializeField] private StringSetting stringSetting;
 
         [Header("Binding Objects")]
         [SerializeField] private TMP_Text text;
-        #pragma warning restore 0649
+#pragma warning restore 0649
 
         public void OnAwake()
         {
@@ -72,7 +70,5 @@ namespace Lost
 
             this.stringSetting.OnSettingChanged -= this.OnSettingChanged;
         }
-
-        #endif
     }
 }

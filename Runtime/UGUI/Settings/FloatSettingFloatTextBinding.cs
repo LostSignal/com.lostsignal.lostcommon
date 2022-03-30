@@ -11,15 +11,13 @@ namespace Lost
 
     public class FloatSettingFloatTextBinding : MonoBehaviour, IAwake, IValidate
     {
-        #if USING_UGUI && USING_TEXT_MESH_PRO
-
-        #pragma warning disable 0649
+#pragma warning disable 0649
         [SerializeField] private FloatSetting floatSetting;
-        
+
         [Header("Float Text Binding Object")]
         [SerializeField] private FloatText floatText;
         [SerializeField] private TextUpdateType floatTextUpdateType;
-        #pragma warning restore 0649
+#pragma warning restore 0649
 
         public void OnAwake()
         {
@@ -80,7 +78,5 @@ namespace Lost
 
             this.floatSetting.OnSettingChanged -= this.OnSettingChanged;
         }
-
-        #endif
     }
 }

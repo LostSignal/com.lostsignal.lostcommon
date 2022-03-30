@@ -16,9 +16,9 @@ namespace Lost
     {
         private DelayedActionList delayedActionList = new DelayedActionList("Delay Action List", 30);
 
-#pragma warning disable 0649
-        [SerializeField] private int initialCapacity = 50;
-#pragma warning restore 0649
+        //// #pragma warning disable 0649
+        //// [SerializeField] private int initialCapacity = 50;
+        //// #pragma warning restore 0649
 
         private List<int> idsToDelete = new List<int>(30);
         private int currentId = 0;
