@@ -108,6 +108,22 @@ namespace Lost
             }
         }
 
+        public static void AssertTrue(this MonoBehaviour monoBehaviour, bool obj, string nameOfObject = null)
+        {
+            if (obj == false)
+            {
+                Debug.LogErrorFormat(monoBehaviour.gameObject, "{0} {1} has false value {2}", monoBehaviour.GetType().Name, GetFullName(monoBehaviour), nameOfObject);
+            }
+        }
+
+        public static void AssertFalse(this MonoBehaviour monoBehaviour, bool obj, string nameOfObject = null)
+        {
+            if (obj == true)
+            {
+                Debug.LogErrorFormat(monoBehaviour.gameObject, "{0} {1} has true value {2}", monoBehaviour.GetType().Name, GetFullName(monoBehaviour), nameOfObject);
+            }
+        }
+
         public static T GetOrAddComponent<T>(this MonoBehaviour behaviour)
             where T : Component
         {
