@@ -10,6 +10,7 @@ namespace Lost
 {
     using System;
     using System.Collections;
+    using System.Collections.Generic;
     using UnityEngine;
 
     public static class MonoBehaviourExtensions
@@ -102,45 +103,102 @@ namespace Lost
 
         public static void LogException(this MonoBehaviour monoBehaviour, Exception ex)
         {
-            Debug.LogError($"{monoBehaviour.GetType().Name} {GetFullName(monoBehaviour)} has encountered an exception {ex.Message}", monoBehaviour);
+            Debug.LogError($"{monoBehaviour.GetType().Name} \"{GetFullName(monoBehaviour)}\" has encountered an exception {ex.Message}", monoBehaviour);
             Debug.LogException(ex, monoBehaviour);
         }
 
-        public static void AssertNotNull(this MonoBehaviour monoBehaviour, object obj, string nameOfObject = null)
+        public static void AssertNotNull(this MonoBehaviour monoBehaviour, List<ValidationError> errors, object obj, string nameOfObject)
         {
             if (obj == null)
             {
-                Debug.LogErrorFormat(monoBehaviour.gameObject, "{0} {1} has null object {2}", monoBehaviour.GetType().Name, GetFullName(monoBehaviour), nameOfObject);
+                string message = $"{monoBehaviour.GetType().Name} \"{GetFullName(monoBehaviour)}\" has null object {nameOfObject}";
+
+                if (Application.isPlaying)
+                {
+                    Debug.LogAssertion(message, monoBehaviour);
+                }
+
+                errors?.Add(new ValidationError { AffectedObject = monoBehaviour, Name = message });
             }
         }
 
-        public static void AssertTrue(this MonoBehaviour monoBehaviour, bool obj, string nameOfObject = null)
+        public static void AssertHasValues(this MonoBehaviour monoBehaviour, List<ValidationError> errors, IList collection, string nameOfObject)
+        {
+            AssertNotNull(monoBehaviour, errors, collection, nameOfObject);
+
+            if (collection.Count == 0)
+            {
+                string message = $"{monoBehaviour.GetType().Name} \"{GetFullName(monoBehaviour)}\" list {nameOfObject} has no values!";
+
+                if (Application.isPlaying)
+                {
+                    Debug.LogAssertion(message, monoBehaviour);
+                }
+
+                errors?.Add(new ValidationError { AffectedObject = monoBehaviour, Name = message });
+            }
+            else
+            {
+                for (int i = 0; i < collection.Count; i++)
+                {
+                    if (collection[i] == null)
+                    {
+                        string message = $"{monoBehaviour.GetType().Name} \"{GetFullName(monoBehaviour)}\" list {nameOfObject} has NULL value at index {i}!";
+
+                        if (Application.isPlaying)
+                        {
+                            Debug.LogAssertion(message, monoBehaviour);
+                        }
+
+                        errors?.Add(new ValidationError { AffectedObject = monoBehaviour, Name = message });
+                    }
+                }
+            }
+        }
+
+        public static void AssertTrue(this MonoBehaviour monoBehaviour, List<ValidationError> errors, bool obj, string nameOfObject)
         {
             if (obj == false)
             {
-                Debug.LogErrorFormat(monoBehaviour.gameObject, "{0} {1} has false value {2}", monoBehaviour.GetType().Name, GetFullName(monoBehaviour), nameOfObject);
+                string message = $"{monoBehaviour.GetType().Name} \"{GetFullName(monoBehaviour)}\" has false value {nameOfObject}";
+
+                if (Application.isPlaying)
+                {
+                    Debug.LogAssertion(message, monoBehaviour);
+                }
+
+                errors?.Add(new ValidationError { AffectedObject = monoBehaviour, Name = message });
             }
         }
 
-        public static void AssertFalse(this MonoBehaviour monoBehaviour, bool obj, string nameOfObject = null)
+        public static void AssertFalse(this MonoBehaviour monoBehaviour, List<ValidationError> errors, bool obj, string nameOfObject)
         {
             if (obj == true)
             {
-                Debug.LogErrorFormat(monoBehaviour.gameObject, "{0} {1} has true value {2}", monoBehaviour.GetType().Name, GetFullName(monoBehaviour), nameOfObject);
+                string message = $"{monoBehaviour.GetType().Name} \"{GetFullName(monoBehaviour)}\" has true value {nameOfObject}";
+
+                if (Application.isPlaying)
+                {
+                    Debug.LogAssertion(message, monoBehaviour);
+                }
+
+                errors?.Add(new ValidationError { AffectedObject = monoBehaviour, Name = message });
             }
         }
 
-        public static T GetOrAddComponent<T>(this MonoBehaviour behaviour)
-            where T : Component
+        public static void AssertValidString(this MonoBehaviour monoBehaviour, List<ValidationError> errors, string str, string nameOfObject)
         {
-            var component = behaviour.GetComponent<T>();
-
-            if (component)
+            if (string.IsNullOrWhiteSpace(str))
             {
-                return component;
-            }
+                string message = $"{monoBehaviour.GetType().Name} \"{GetFullName(monoBehaviour)}\" has invalid string value {nameOfObject}";
 
-            return behaviour.gameObject.AddComponent<T>();
+                if (Application.isPlaying)
+                {
+                    Debug.LogAssertion(message, monoBehaviour);
+                }
+
+                errors?.Add(new ValidationError { AffectedObject = monoBehaviour, Name = message });
+            }
         }
 
         public static void DrawGizmoCube(this MonoBehaviour lhs, Color color, float width, float height, Vector2 offset)

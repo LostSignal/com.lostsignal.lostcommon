@@ -14,20 +14,19 @@ namespace Lost.Localization
     [RequireComponent(typeof(Button))]
     public class ChangeLanguageButton : MonoBehaviour
     {
-        #pragma warning disable 0649
-        [HideInInspector] [SerializeField] private Button button;
+#pragma warning disable 0649
+        [ReadOnly]
+        [SerializeField] private Button button;
         [SerializeField] private string isoLanguageName;
-        #pragma warning restore 0649
+#pragma warning restore 0649
 
         private void OnValidate()
         {
-            this.AssertGetComponent<Button>(ref this.button);
+            EditorUtil.SetIfNull(this, ref this.button);
         }
 
         private void Awake()
         {
-            this.OnValidate();
-
             this.button.onClick.AddListener(this.Clicked);
         }
 

@@ -6,9 +6,10 @@
 
 namespace Lost
 {
+    using System;
     using System.Collections.Generic;
+    using Lost.EditorGrid;
     using UnityEditor;
-    using UnityEngine;
 
     public class LostEditor : Editor
     {
@@ -25,8 +26,21 @@ namespace Lost
                 prop = this.serializedObject.FindProperty(propertyName);
                 this.serializedProperties.Add(propertyName, prop);
             }
-            
+
             EditorGUILayout.PropertyField(prop);
+        }
+
+        protected void Foldout(string name, Action action)
+        {
+            int id = HashCode.Combine(this.target.GetInstanceID(), name);
+
+            using (new FoldoutScope(id, name, out bool visible))
+            {
+                if (visible)
+                {
+                    action.Invoke();
+                }
+            }
         }
     }
 }

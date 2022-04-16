@@ -14,6 +14,77 @@ namespace Lost
 
     public static class EditorUtil
     {
+        public static T GetOrAddComponent<T>(MonoBehaviour behaviour)
+            where T : Component
+        {
+            if (Application.isPlaying)
+            {
+                UnityEngine.Debug.LogError($"EditorUtil.GetOrAddComponent<{typeof(T).Name}>() called at runtime!");
+            }
+
+            var component = behaviour.GetComponent<T>();
+
+            if (component)
+            {
+                return component;
+            }
+
+            var result = behaviour.gameObject.AddComponent<T>();
+
+            EditorUtil.SetDirty(behaviour);
+
+            return result;
+        }
+
+        public static void SetIfNull<T>(MonoBehaviour monoBehaviour, ref T field, string guid)
+            where T : ScriptableObject
+        {
+            if (Application.isPlaying)
+            {
+                return;
+            }
+
+            if (field == null)
+            {
+                T result = EditorUtil.GetAssetByGuid<T>(guid);
+
+                if (result != null)
+                {
+                    field = result;
+                    EditorUtil.SetDirty(monoBehaviour);
+                }
+            }
+        }
+
+        public static void SetIfNull<T>(MonoBehaviour monoBehaviour, ref T field, bool ignoreChildren = false)
+            where T : Component
+        {
+            if (Application.isPlaying)
+            {
+                return;
+            }
+
+            if (field == null)
+            {
+                T result = null;
+
+                if (ignoreChildren)
+                {
+                    result = monoBehaviour.GetComponent<T>();
+                }
+                else
+                {
+                    result = monoBehaviour.GetComponentInChildren<T>();
+                }
+
+                if (result != null)
+                {
+                    field = result;
+                    EditorUtil.SetDirty(monoBehaviour);
+                }
+            }
+        }
+
         public static T GetAssetByGuid<T>(string guid)
             where T : UnityEngine.Object
         {
@@ -23,7 +94,7 @@ namespace Lost
             }
             else
             {
-                #if UNITY_EDITOR
+#if UNITY_EDITOR
                 if (string.IsNullOrEmpty(guid))
                 {
                     return null;
@@ -37,7 +108,7 @@ namespace Lost
                 }
 
                 return UnityEditor.AssetDatabase.LoadAssetAtPath<T>(path);
-                #endif
+#endif
             }
 
             return null;
@@ -46,9 +117,9 @@ namespace Lost
         [Conditional("UNITY_EDITOR")]
         public static void SetDirty(UnityEngine.Object target)
         {
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             UnityEditor.EditorUtility.SetDirty(target);
-            #endif
+#endif
         }
 
         public static void SaveAll()
@@ -77,16 +148,16 @@ namespace Lost
 
         public static void SaveProject()
         {
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             UnityEditor.AssetDatabase.SaveAssets();
-            #endif
+#endif
         }
 
         public static void SaveScenes()
         {
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             UnityEditor.EditorApplication.ExecuteMenuItem("File/Save");
-            #endif
+#endif
         }
 
         public static void SaveScene(Component component)
@@ -101,9 +172,9 @@ namespace Lost
 
         public static void SaveScene(Scene scene)
         {
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             UnityEditor.SceneManagement.EditorSceneManager.SaveScene(scene);
-            #endif
+#endif
         }
     }
 }
