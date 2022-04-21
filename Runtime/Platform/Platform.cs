@@ -21,11 +21,11 @@ namespace Lost
     public static class Platform
     {
         // TODO [bgish] - make sure <uses-permission android:name="android.permission.VIBRATE"/> is in the AndroidManifest.xml file
-        #if UNITY_ANDROID && !UNITY_EDITOR
+#if UNITY_ANDROID && !UNITY_EDITOR
         private static readonly AndroidJavaClass UnityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
         private static readonly AndroidJavaObject CurrentActivity = UnityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
         private static readonly AndroidJavaObject Vibrator = CurrentActivity.Call<AndroidJavaObject>("getSystemService", "vibrator");
-        #endif
+#endif
 
         public delegate void OnResetDelegate();
 
@@ -46,11 +46,11 @@ namespace Lost
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                #if UNITY_EDITOR
+#if UNITY_EDITOR
                 return UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode;
-                #else
+#else
                 return true;
-                #endif
+#endif
             }
         }
 
@@ -136,11 +136,11 @@ namespace Lost
             get
             {
                 // TODO [bgish]: Should be able to figure this out by finding build config json file
-                #if UNITY_CLOUD_BUILD
+#if UNITY_CLOUD_BUILD
                 return true;
-                #else
+#else
                 return false;
-                #endif
+#endif
             }
         }
 
@@ -171,11 +171,11 @@ namespace Lost
 
         public static void QuitApplication()
         {
-            #if UNITY_EDITOR
+#if UNITY_EDITOR
             UnityEditor.EditorApplication.isPlaying = false;
-            #else
+#else
             Application.Quit();
-            #endif
+#endif
         }
 
         public static void Vibrate(long milliseconds)
@@ -183,15 +183,15 @@ namespace Lost
             switch (CurrentDevicePlatform)
             {
                 case DevicePlatform.Android:
-                    #if UNITY_ANDROID && !UNITY_EDITOR
+#if UNITY_ANDROID && !UNITY_EDITOR
                     Vibrator.Call("vibrate", milliseconds);
-                    #endif
+#endif
                     break;
 
                 case DevicePlatform.iOS:
-                    #if UNITY_IOS
+#if UNITY_IOS
                     Handheld.Vibrate();
-                    #endif
+#endif
                     break;
 
                 default:
@@ -247,7 +247,7 @@ namespace Lost
             Application.OpenURL(mailToUrl);
         }
 
-        [EditorEvents.OnExitingPlayMode]
+        [EditorEvents.OnExitPlayMode]
         public static void Reset()
         {
             try
