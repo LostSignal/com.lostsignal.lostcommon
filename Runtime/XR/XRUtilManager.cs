@@ -4,8 +4,6 @@
 // </copyright>
 //-----------------------------------------------------------------------
 
-#if USING_UNITY_XR_MANAGEMENT
-
 namespace Lost.XR
 {
     using System;
@@ -14,11 +12,14 @@ namespace Lost.XR
     using System.Threading.Tasks;
     using Lost;
     using UnityEngine;
+
+#if USING_UNITY_XR_MANAGEMENT
     using UnityEngine.XR.Management;
+#endif
 
     public class XRUtilManager : MonoBehaviour
     {
-        #pragma warning disable 0649
+#pragma warning disable 0649
         [SerializeField] private bool initializeAtStartup = true;
         [SerializeField] private XRDevice flatMode;
         [SerializeField] private List<XRDevice> devices;
@@ -33,7 +34,7 @@ namespace Lost.XR
 
         [Header("Debug")]
         [SerializeField] private bool printDebugInfo = true;
-        #pragma warning restore 0649
+#pragma warning restore 0649
 
         [NonSerialized]
         private XRDevice currentDevice;
@@ -60,7 +61,11 @@ namespace Lost.XR
 
         public void Initialize()
         {
+#if USING_UNITY_XR_MANAGEMENT
             this.Initialize(Application.isEditor && Application.isPlaying && ForceFlatModeInEditorUtil.ForceFlatModeInEditor);
+#else
+            this.Initialize(true);
+#endif
         }
 
         public void ToggleVR()
@@ -70,6 +75,7 @@ namespace Lost.XR
 
         private void Start()
         {
+#if USING_UNITY_XR_MANAGEMENT
             if (this.printDebugInfo)
             {
                 UnityEngine.XR.XRDevice.deviceLoaded += (device) => Debug.Log($"XRUtilManager: Device Loaded - {device}");
@@ -95,6 +101,7 @@ namespace Lost.XR
                     }
                 }
             }
+#endif
         }
 
         private void OnEnable()
@@ -114,14 +121,15 @@ namespace Lost.XR
         [EditorEvents.OnExitingPlayMode]
         private void Shutdown()
         {
+#if USING_UNITY_XR_MANAGEMENT
             if (XRGeneralSettings.Instance && XRGeneralSettings.Instance.Manager && XRGeneralSettings.Instance.Manager.isInitializationComplete && XRGeneralSettings.Instance.Manager.activeLoader != null)
             {
                 XRGeneralSettings.Instance.Manager.DeinitializeLoader();
             }
+#endif
         }
 
-        #if UNITY_EDITOR
-
+#if UNITY_EDITOR
         private void OnValidate()
         {
             if (this.flatMode == null)
@@ -192,11 +200,11 @@ namespace Lost.XR
                 this.ToggleVR();
             }
         }
-
-        #endif
+#endif
 
         private async void Initialize(bool forceFlatMode)
         {
+#if USING_UNITY_XR_MANAGEMENT
             // Making sure we haven't already initialized a device (if one was, then deinitialize it)
             var xrSettingsManager = XRGeneralSettings.Instance.Manager;
 
@@ -247,16 +255,22 @@ namespace Lost.XR
             {
                 this.SetCurrentDevice(this.flatMode);
             }
+#else
+            await Task.Yield();
+            this.SetCurrentDevice(this.flatMode);
+#endif
         }
 
         private void SetCurrentDevice(XRDevice xrDevice)
         {
             // Enforcing that all XR Plugins are disabled when in Flat Mode
+#if USING_UNITY_XR_MANAGEMENT
             var xrSettingsManager = XRGeneralSettings.Instance.Manager;
             if (xrDevice == this.flatMode && xrSettingsManager.activeLoader != null)
             {
                 xrSettingsManager.DeinitializeLoader();
             }
+#endif
 
             this.currentDevice = xrDevice;
 
@@ -277,6 +291,7 @@ namespace Lost.XR
             }
         }
 
+#if USING_UNITY_XR_MANAGEMENT
         private void StartUnityXRPlugin(XRLoader primaryXRLoader, XRLoader secondaryXRLoader)
         {
             var xrSettingsManager = XRGeneralSettings.Instance.Manager;
@@ -381,7 +396,7 @@ namespace Lost.XR
                         Debug.LogError($"XRUtilManager: Found Unknown XRLoader {loader}");
                         return null;
                     }
-            };
+            }
         }
 
         private async Task<string> FindConnectedHMD()
@@ -483,7 +498,6 @@ namespace Lost.XR
                 return null;
             }
         }
+#endif
     }
 }
-
-#endif
